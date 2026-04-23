@@ -7,7 +7,12 @@ const summary = document.querySelector("#summary");
 const startButton = document.querySelector("#start");
 const againButton = document.querySelector("#again");
 const pauseButton = document.querySelector("#pause");
+const stopButton = document.querySelector("#stop");
+const summaryMenuButton = document.querySelector("#summary-menu");
 const durationButtons = [...document.querySelectorAll(".duration")];
+const swatchButtons = [...document.querySelectorAll(".swatch")];
+const markButtons = [...document.querySelectorAll(".mark")];
+const playerNameInput = document.querySelector("#player-name");
 const massLabel = document.querySelector("#mass");
 const rankLabel = document.querySelector("#rank");
 const timeLabel = document.querySelector("#time");
@@ -46,6 +51,11 @@ const state = {
   shake: 0,
   paused: false,
   animationId: 0,
+  custom: {
+    name: "YOU",
+    color: COLORS.red,
+    mark: "orbit",
+  },
 };
 
 function random(min, max) {
@@ -80,6 +90,7 @@ function createCell(x, y, mass, color, name, isPlayer = false) {
     angle: random(0, TAU),
     mood: random(0, 1),
     alive: true,
+    mark: isPlayer ? state.custom.mark : "orbit",
   };
 }
 
@@ -121,7 +132,15 @@ function botSpawnPoint() {
 }
 
 function resetGame() {
-  state.player = createCell(WORLD.width / 2, WORLD.height / 2, 16, COLORS.red, "YOU", true);
+  const playerName = state.custom.name.trim().toUpperCase() || "YOU";
+  state.player = createCell(
+    WORLD.width / 2,
+    WORLD.height / 2,
+    16,
+    state.custom.color,
+    playerName,
+    true,
+  );
   state.foods = Array.from({ length: 520 }, makeFood);
   state.props = Array.from({ length: 115 }, makeProp);
   state.bots = Array.from({ length: 15 }, (_, index) => {
@@ -155,11 +174,23 @@ function resize() {
 }
 
 function startGame() {
+  state.custom.name = playerNameInput.value.trim().toUpperCase().slice(0, 8) || "YOU";
+  playerNameInput.value = state.custom.name;
   resetGame();
   state.mode = "playing";
   menu.classList.add("is-hidden");
   summary.classList.add("is-hidden");
   hud.classList.remove("is-hidden");
+  pauseButton.setAttribute("aria-label", "Pause");
+}
+
+function showMenu() {
+  state.mode = "menu";
+  state.paused = false;
+  state.pointer.active = false;
+  menu.classList.remove("is-hidden");
+  hud.classList.add("is-hidden");
+  summary.classList.add("is-hidden");
   pauseButton.setAttribute("aria-label", "Pause");
 }
 
@@ -493,9 +524,24 @@ function drawCell(cell, now) {
   ctx.strokeStyle = COLORS.ink;
   ctx.globalAlpha = 0.22;
   ctx.lineWidth = 1.5 / state.camera.zoom;
-  ctx.beginPath();
-  ctx.arc(0, 0, Math.max(5, cell.radius * 0.48), 0, TAU);
-  ctx.stroke();
+  if (cell.isPlayer && cell.mark === "spark") {
+    const markSize = Math.max(8, cell.radius * 0.48);
+    ctx.beginPath();
+    ctx.moveTo(-markSize, 0);
+    ctx.lineTo(markSize, 0);
+    ctx.moveTo(0, -markSize);
+    ctx.lineTo(0, markSize);
+    ctx.stroke();
+  } else if (cell.isPlayer && cell.mark === "core") {
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.max(5, cell.radius * 0.24), 0, TAU);
+    ctx.fillStyle = COLORS.ink;
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.max(5, cell.radius * 0.48), 0, TAU);
+    ctx.stroke();
+  }
   ctx.globalAlpha = 1;
 
   if (cell.radius > 22) {
@@ -573,8 +619,26 @@ durationButtons.forEach((button) => {
   });
 });
 
+swatchButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.custom.color = button.dataset.color;
+    swatchButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+    if (state.mode === "menu" && state.player) state.player.color = state.custom.color;
+  });
+});
+
+markButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.custom.mark = button.dataset.mark;
+    markButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+    if (state.mode === "menu" && state.player) state.player.mark = state.custom.mark;
+  });
+});
+
 startButton.addEventListener("click", startGame);
 againButton.addEventListener("click", startGame);
+stopButton.addEventListener("click", showMenu);
+summaryMenuButton.addEventListener("click", showMenu);
 pauseButton.addEventListener("click", () => {
   state.paused = !state.paused;
   pauseButton.setAttribute("aria-label", state.paused ? "Resume" : "Pause");

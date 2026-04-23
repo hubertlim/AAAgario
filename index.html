@@ -3,9 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="A fast single-player browser arena game inspired by Agar.io growth and Hole.io routing."
+    />
     <meta name="theme-color" content="#f7f4ea" />
+    <meta property="og:title" content="AAAgario" />
+    <meta property="og:url" content="https://hubertlim.github.io/AAAgario/" />
+    <meta
+      property="og:description"
+      content="Eat motes, absorb rivals, unlock bigger objects, and chase the best short-session route."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://hubertlim.github.io/AAAgario/docs/social-preview.svg"
+    />
     <title>AAAgario</title>
-    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="canonical" href="https://hubertlim.github.io/AAAgario/" />
+    <link
+      rel="icon"
+      href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23f7f4ea"/><circle cx="32" cy="32" r="20" fill="none" stroke="%231d211d" stroke-width="4"/><circle cx="32" cy="32" r="10" fill="none" stroke="%23df3f2d" stroke-width="6"/></svg>'
+    />
+    <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
     <main id="app" class="shell">
@@ -26,6 +46,38 @@
             <button class="duration is-active" data-minutes="3" type="button">3 min</button>
             <button class="duration" data-minutes="5" type="button">5 min</button>
             <button class="duration" data-minutes="10" type="button">10 min</button>
+          </div>
+
+          <div class="customizer" aria-label="Character customization">
+            <label class="name-field" for="player-name">
+              <span>Tag</span>
+              <input id="player-name" maxlength="8" value="YOU" autocomplete="off" />
+            </label>
+
+            <div>
+              <p class="mode-label">Color</p>
+              <div class="swatches" role="group" aria-label="Cell color">
+                <button class="swatch is-active" style="--swatch: #df3f2d" data-color="#df3f2d" type="button" aria-label="Red"></button>
+                <button class="swatch" style="--swatch: #1d9a78" data-color="#1d9a78" type="button" aria-label="Mint"></button>
+                <button class="swatch" style="--swatch: #2774a9" data-color="#2774a9" type="button" aria-label="Blue"></button>
+                <button class="swatch" style="--swatch: #c99821" data-color="#c99821" type="button" aria-label="Gold"></button>
+              </div>
+            </div>
+
+            <div>
+              <p class="mode-label">Mark</p>
+              <div class="marks" role="group" aria-label="Cell mark">
+                <button class="mark is-active" data-mark="orbit" type="button" aria-label="Orbit mark">
+                  <span class="mark-orbit" aria-hidden="true"></span>
+                </button>
+                <button class="mark" data-mark="spark" type="button" aria-label="Spark mark">
+                  <span class="mark-spark" aria-hidden="true"></span>
+                </button>
+                <button class="mark" data-mark="core" type="button" aria-label="Core mark">
+                  <span class="mark-core" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <button id="start" class="start" type="button">
@@ -62,6 +114,10 @@
         <button id="pause" class="icon-button" type="button" aria-label="Pause">
           <span class="pause-icon" aria-hidden="true"></span>
         </button>
+        <button id="stop" class="stop-button" type="button">
+          <span class="stop-icon" aria-hidden="true"></span>
+          Menu
+        </button>
       </section>
 
       <section id="summary" class="summary is-hidden" aria-label="Round summary">
@@ -83,9 +139,11 @@
             <span class="replay-icon" aria-hidden="true"></span>
             Play again
           </button>
+          <button id="summary-menu" class="secondary-action" type="button">Menu</button>
         </div>
       </section>
     </main>
-    <script type="module" src="/src/main.js"></script>
+    <noscript>AAAgario needs JavaScript enabled to run the canvas game.</noscript>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

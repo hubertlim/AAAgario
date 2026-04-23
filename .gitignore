@@ -1,0 +1,16 @@
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local runtime output
+node_modules/
+dist/
+coverage/
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example

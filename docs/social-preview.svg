@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">AAAgario preview</title>
+  <desc id="desc">A clean line-art arena with colorful cells, pellets, and game HUD elements.</desc>
+  <rect width="1280" height="640" fill="#f7f4ea"/>
+  <g stroke="#1d211d" stroke-opacity="0.08" stroke-width="2">
+    <path d="M0 80H1280M0 160H1280M0 240H1280M0 320H1280M0 400H1280M0 480H1280M0 560H1280"/>
+    <path d="M80 0V640M160 0V640M240 0V640M320 0V640M400 0V640M480 0V640M560 0V640M640 0V640M720 0V640M800 0V640M880 0V640M960 0V640M1040 0V640M1120 0V640M1200 0V640"/>
+  </g>
+  <rect x="74" y="66" width="1132" height="508" fill="none" stroke="#1d211d" stroke-width="6"/>
+  <g fill="none" stroke-width="8">
+    <circle cx="692" cy="326" r="112" stroke="#df3f2d"/>
+    <circle cx="692" cy="326" r="51" stroke="#1d211d" stroke-opacity="0.24"/>
+    <circle cx="392" cy="224" r="66" stroke="#2774a9"/>
+    <circle cx="948" cy="416" r="78" stroke="#1d9a78"/>
+    <circle cx="1044" cy="198" r="42" stroke="#c99821"/>
+  </g>
+  <g>
+    <circle cx="236" cy="390" r="13" fill="#1d9a78"/>
+    <circle cx="298" cy="462" r="9" fill="#2774a9"/>
+    <circle cx="506" cy="402" r="12" fill="#c99821"/>
+    <circle cx="818" cy="202" r="11" fill="#df3f2d"/>
+    <circle cx="880" cy="268" r="8" fill="#2774a9"/>
+    <circle cx="1082" cy="318" r="10" fill="#1d9a78"/>
+    <circle cx="1120" cy="476" r="13" fill="#c99821"/>
+  </g>
+  <g fill="#f7f4ea" stroke="#1d211d" stroke-width="4">
+    <rect x="112" y="104" width="116" height="54" rx="8"/>
+    <rect x="244" y="104" width="116" height="54" rx="8"/>
+    <rect x="376" y="104" width="116" height="54" rx="8"/>
+  </g>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif" fill="#1d211d">
+    <text x="112" y="584" font-size="92" font-weight="900">AAAgario</text>
+    <text x="116" y="620" font-size="27" font-weight="700" fill="#667066">single-player arena growth game</text>
+    <text x="132" y="139" font-size="25" font-weight="800">Mass</text>
+    <text x="268" y="139" font-size="25" font-weight="800">Rank</text>
+    <text x="400" y="139" font-size="25" font-weight="800">Time</text>
+    <text x="645" y="338" font-size="35" font-weight="900">YOU</text>
+  </g>
+</svg>
