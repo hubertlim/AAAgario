@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f4ea" />
+    <title>AAAgario</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main id="app" class="shell">
+      <canvas id="game" aria-label="AAAgario playfield"></canvas>
+
+      <section id="menu" class="menu" aria-label="Start menu">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <p class="eyebrow">Single-player arena</p>
+            <h1>AAAgario</h1>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="mode-label">Round length</p>
+          <div class="segmented" role="group" aria-label="Round length">
+            <button class="duration is-active" data-minutes="3" type="button">3 min</button>
+            <button class="duration" data-minutes="5" type="button">5 min</button>
+            <button class="duration" data-minutes="10" type="button">10 min</button>
+          </div>
+
+          <button id="start" class="start" type="button">
+            <span class="play-icon" aria-hidden="true"></span>
+            Start
+          </button>
+
+          <div class="concepts" aria-label="Concept ideas">
+            <article>
+              <strong>Cell Rush</strong>
+              <span>Eat motes, rivals, and city marks in a fast route puzzle.</span>
+            </article>
+            <article>
+              <strong>Gravity Bloom</strong>
+              <span>Cleaner input, automatic nearby pulls, bigger object cascades.</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="hud" class="hud is-hidden" aria-label="Game status">
+        <div>
+          <span>Mass</span>
+          <strong id="mass">12</strong>
+        </div>
+        <div>
+          <span>Rank</span>
+          <strong id="rank">1</strong>
+        </div>
+        <div>
+          <span>Time</span>
+          <strong id="time">03:00</strong>
+        </div>
+        <button id="pause" class="icon-button" type="button" aria-label="Pause">
+          <span class="pause-icon" aria-hidden="true"></span>
+        </button>
+      </section>
+
+      <section id="summary" class="summary is-hidden" aria-label="Round summary">
+        <div class="panel">
+          <p class="eyebrow">Round complete</p>
+          <h2 id="result-title">Clean sweep</h2>
+          <p id="result-copy"></p>
+          <div class="stats">
+            <div>
+              <span>Mass</span>
+              <strong id="final-mass">0</strong>
+            </div>
+            <div>
+              <span>Best chain</span>
+              <strong id="final-chain">0</strong>
+            </div>
+          </div>
+          <button id="again" class="start" type="button">
+            <span class="replay-icon" aria-hidden="true"></span>
+            Play again
+          </button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
