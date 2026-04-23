@@ -3,11 +3,14 @@ const ctx = canvas.getContext("2d", { alpha: false });
 
 const menu = document.querySelector("#menu");
 const hud = document.querySelector("#hud");
+const pauseMenu = document.querySelector("#pause-menu");
 const summary = document.querySelector("#summary");
 const startButton = document.querySelector("#start");
 const againButton = document.querySelector("#again");
-const pauseButton = document.querySelector("#pause");
 const stopButton = document.querySelector("#stop");
+const resumeButton = document.querySelector("#resume");
+const restartButton = document.querySelector("#restart");
+const mainMenuButton = document.querySelector("#main-menu");
 const summaryMenuButton = document.querySelector("#summary-menu");
 const durationButtons = [...document.querySelectorAll(".duration")];
 const swatchButtons = [...document.querySelectorAll(".swatch")];
@@ -179,24 +182,39 @@ function startGame() {
   resetGame();
   state.mode = "playing";
   menu.classList.add("is-hidden");
+  pauseMenu.classList.add("is-hidden");
   summary.classList.add("is-hidden");
   hud.classList.remove("is-hidden");
-  pauseButton.setAttribute("aria-label", "Pause");
 }
 
-function showMenu() {
+function openPauseMenu() {
+  if (state.mode !== "playing") return;
+  state.paused = true;
+  state.pointer.active = false;
+  pauseMenu.classList.remove("is-hidden");
+}
+
+function resumeGame() {
+  if (state.mode !== "playing") return;
+  state.paused = false;
+  pauseMenu.classList.add("is-hidden");
+}
+
+function showMainMenu() {
   state.mode = "menu";
   state.paused = false;
   state.pointer.active = false;
+  resetGame();
   menu.classList.remove("is-hidden");
+  pauseMenu.classList.add("is-hidden");
   hud.classList.add("is-hidden");
   summary.classList.add("is-hidden");
-  pauseButton.setAttribute("aria-label", "Pause");
 }
 
 function endGame(wasEaten = false) {
   state.mode = "summary";
   hud.classList.add("is-hidden");
+  pauseMenu.classList.add("is-hidden");
   summary.classList.remove("is-hidden");
   finalMass.textContent = Math.round(state.player.mass).toString();
   finalChain.textContent = state.bestChain.toString();
@@ -637,12 +655,11 @@ markButtons.forEach((button) => {
 
 startButton.addEventListener("click", startGame);
 againButton.addEventListener("click", startGame);
-stopButton.addEventListener("click", showMenu);
-summaryMenuButton.addEventListener("click", showMenu);
-pauseButton.addEventListener("click", () => {
-  state.paused = !state.paused;
-  pauseButton.setAttribute("aria-label", state.paused ? "Resume" : "Pause");
-});
+stopButton.addEventListener("click", openPauseMenu);
+resumeButton.addEventListener("click", resumeGame);
+restartButton.addEventListener("click", startGame);
+mainMenuButton.addEventListener("click", showMainMenu);
+summaryMenuButton.addEventListener("click", showMainMenu);
 
 window.addEventListener("pointerdown", (event) => {
   if (event.target.closest("button")) return;
@@ -667,7 +684,8 @@ window.addEventListener("pointercancel", () => {
 window.addEventListener("keydown", (event) => {
   state.keys.add(event.code);
   if (event.code === "Space" && state.mode === "playing") {
-    state.paused = !state.paused;
+    if (state.paused) resumeGame();
+    else openPauseMenu();
   }
 });
 

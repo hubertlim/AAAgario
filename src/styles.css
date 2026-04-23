@@ -274,7 +274,6 @@ h2 {
 
 .play-icon,
 .replay-icon,
-.pause-icon,
 .stop-icon {
   position: relative;
   display: inline-block;
@@ -338,13 +337,12 @@ h2 {
   left: max(12px, env(safe-area-inset-left));
   right: max(12px, env(safe-area-inset-right));
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) 42px minmax(92px, 0.7fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(92px, 0.7fr);
   gap: 8px;
   align-items: center;
 }
 
 .hud > div,
-.icon-button,
 .stop-button,
 .stats > div {
   min-height: 42px;
@@ -379,13 +377,6 @@ h2 {
   white-space: nowrap;
 }
 
-.icon-button {
-  display: grid;
-  place-items: center;
-  padding: 0;
-  cursor: pointer;
-}
-
 .stop-button,
 .secondary-action {
   display: flex;
@@ -408,27 +399,27 @@ h2 {
   background: currentColor;
 }
 
-.pause-icon::before,
-.pause-icon::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  width: 4px;
-  background: currentColor;
-}
-
-.pause-icon::before {
-  left: 4px;
-}
-
-.pause-icon::after {
-  right: 4px;
-}
-
+.pause-menu,
 .summary {
   background: rgba(247, 244, 234, 0.42);
   backdrop-filter: blur(8px);
+}
+
+.pause-menu {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right))
+    max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+.pause-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .stats {
@@ -445,12 +436,22 @@ h2 {
   color: var(--ink);
 }
 
+.pause-actions .secondary-action {
+  margin-top: 0;
+}
+
+.strong-action {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .is-hidden {
   display: none;
 }
 
 @media (max-width: 540px) {
   .menu,
+  .pause-menu,
   .summary {
     align-content: end;
   }
@@ -465,7 +466,7 @@ h2 {
   }
 
   .hud {
-    grid-template-columns: 1fr 1fr 1fr 40px;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 6px;
   }
 

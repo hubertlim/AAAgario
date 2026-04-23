@@ -82,7 +82,7 @@
 
           <button id="start" class="start" type="button">
             <span class="play-icon" aria-hidden="true"></span>
-            Start
+            New round
           </button>
 
           <div class="concepts" aria-label="Concept ideas">
@@ -111,13 +111,28 @@
           <span>Time</span>
           <strong id="time">03:00</strong>
         </div>
-        <button id="pause" class="icon-button" type="button" aria-label="Pause">
-          <span class="pause-icon" aria-hidden="true"></span>
-        </button>
         <button id="stop" class="stop-button" type="button">
           <span class="stop-icon" aria-hidden="true"></span>
-          Menu
+          Stop
         </button>
+      </section>
+
+      <section id="pause-menu" class="pause-menu is-hidden" aria-label="Paused">
+        <div class="panel">
+          <p class="eyebrow">Run paused</p>
+          <h2>Stopped</h2>
+          <div class="pause-actions">
+            <button id="resume" class="start" type="button">
+              <span class="play-icon" aria-hidden="true"></span>
+              Resume
+            </button>
+            <button id="restart" class="secondary-action strong-action" type="button">
+              <span class="replay-icon" aria-hidden="true"></span>
+              Restart
+            </button>
+            <button id="main-menu" class="secondary-action" type="button">Main menu</button>
+          </div>
+        </div>
       </section>
 
       <section id="summary" class="summary is-hidden" aria-label="Round summary">
@@ -139,7 +154,7 @@
             <span class="replay-icon" aria-hidden="true"></span>
             Play again
           </button>
-          <button id="summary-menu" class="secondary-action" type="button">Menu</button>
+          <button id="summary-menu" class="secondary-action" type="button">Main menu</button>
         </div>
       </section>
     </main>
