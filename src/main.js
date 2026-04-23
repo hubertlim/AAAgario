@@ -20,9 +20,13 @@ const surpriseButton = document.querySelector("#surprise");
 const modeSelect = document.querySelector("#mode-select");
 const mapSelect = document.querySelector("#map-select");
 const modifierSelect = document.querySelector("#modifier-select");
+const runGroup = document.querySelector(".option-group-run");
+const styleGroup = document.querySelector(".option-group-style");
 const swatchButtons = [...document.querySelectorAll(".swatch")];
 const markButtons = [...document.querySelectorAll(".mark")];
 const playerNameInput = document.querySelector("#player-name");
+const runSummaryLabel = document.querySelector("#run-summary");
+const styleSummaryLabel = document.querySelector("#style-summary");
 const massLabel = document.querySelector("#mass");
 const rankLabel = document.querySelector("#rank");
 const timeLabel = document.querySelector("#time");
@@ -43,24 +47,37 @@ const COLORS = {
   gold: "#c99821",
   violet: "#7556a8",
 };
+const COLOR_NAMES = {
+  "#df3f2d": "Red",
+  "#1d9a78": "Mint",
+  "#2774a9": "Blue",
+  "#c99821": "Gold",
+};
+const MARK_NAMES = {
+  orbit: "Orbit",
+  spark: "Spark",
+  core: "Core",
+};
 const MAPS = {
   city: {
     name: "City",
-    paper: "#f7f4ea",
-    grid: "rgba(29, 33, 29, 0.08)",
+    paper: "#dfe7ec",
+    border: "#22313e",
+    grid: "rgba(34, 49, 62, 0.1)",
     food: [COLORS.mint, COLORS.blue, COLORS.gold, COLORS.red],
     props: [
-      { name: "cone", mass: 9, r: 13, sides: 3, color: COLORS.gold },
-      { name: "sign", mass: 18, r: 18, sides: 4, color: COLORS.blue },
-      { name: "cart", mass: 35, r: 24, sides: 4, color: COLORS.mint },
-      { name: "tower", mass: 70, r: 34, sides: 6, color: COLORS.violet },
-      { name: "block", mass: 120, r: 46, sides: 4, color: COLORS.red },
+      { name: "cone", mass: 9, r: 13, sides: 3, color: "#ef9f2d" },
+      { name: "sign", mass: 18, r: 18, sides: 4, color: "#2d83bc" },
+      { name: "cart", mass: 35, r: 24, sides: 4, color: "#188a6a" },
+      { name: "tower", mass: 70, r: 34, sides: 6, color: "#5d6f87" },
+      { name: "block", mass: 120, r: 46, sides: 4, color: "#394856" },
     ],
   },
   desk: {
     name: "Desk",
-    paper: "#f4f0e5",
-    grid: "rgba(65, 62, 50, 0.08)",
+    paper: "#f4ecd8",
+    border: "#51483d",
+    grid: "rgba(81, 72, 61, 0.08)",
     food: ["#3d8b6f", "#d84b3d", "#b18b20", "#555c68"],
     props: [
       { name: "clip", mass: 8, r: 12, sides: 5, color: "#555c68" },
@@ -72,21 +89,23 @@ const MAPS = {
   },
   kitchen: {
     name: "Kitchen",
-    paper: "#fff5e5",
-    grid: "rgba(74, 54, 30, 0.08)",
+    paper: "#fff1d6",
+    border: "#6a5338",
+    grid: "rgba(106, 83, 56, 0.1)",
     food: ["#d94937", "#6c9d39", "#c99022", "#2b82a3"],
     props: [
       { name: "berry", mass: 7, r: 11, sides: 9, color: "#d94937" },
       { name: "spoon", mass: 20, r: 19, sides: 4, color: "#7d858a" },
       { name: "plate", mass: 38, r: 25, sides: 12, color: "#2b82a3" },
       { name: "pan", mass: 78, r: 36, sides: 8, color: "#282d31" },
-      { name: "cake", mass: 128, r: 48, sides: 6, color: "#c99022" },
+      { name: "cake", mass: 128, r: 48, sides: 6, color: "#9f6c2d" },
     ],
   },
   arcade: {
     name: "Arcade",
-    paper: "#f4f2fb",
-    grid: "rgba(47, 34, 82, 0.08)",
+    paper: "#171522",
+    border: "#ece5ff",
+    grid: "rgba(236, 229, 255, 0.08)",
     food: ["#e83f6f", "#31a7c7", "#f0b429", "#7556a8"],
     props: [
       { name: "ticket", mass: 8, r: 13, sides: 4, color: "#e83f6f" },
@@ -98,8 +117,9 @@ const MAPS = {
   },
   garden: {
     name: "Garden",
-    paper: "#eff7e8",
-    grid: "rgba(30, 79, 49, 0.08)",
+    paper: "#dff1df",
+    border: "#24583a",
+    grid: "rgba(36, 88, 58, 0.08)",
     food: ["#2f9b62", "#8fbb3f", "#d85f4a", "#7b5da8"],
     props: [
       { name: "spore", mass: 7, r: 11, sides: 8, color: "#7b5da8" },
@@ -111,8 +131,9 @@ const MAPS = {
   },
   toy: {
     name: "Toy",
-    paper: "#f7f4ea",
-    grid: "rgba(29, 33, 29, 0.07)",
+    paper: "#e5f0fb",
+    border: "#26455f",
+    grid: "rgba(38, 69, 95, 0.08)",
     food: ["#df3f2d", "#1d9a78", "#2774a9", "#c99821"],
     props: [
       { name: "block", mass: 8, r: 13, sides: 4, color: "#df3f2d" },
@@ -167,6 +188,7 @@ const state = {
   bots: [],
   particles: [],
   popups: [],
+  landmarks: [],
   hazards: [],
   boss: null,
   huntTargets: [],
@@ -196,6 +218,26 @@ function random(min, max) {
 
 function pick(items) {
   return items[Math.floor(random(0, items.length))];
+}
+
+function isCompactMenuViewport() {
+  return window.innerWidth <= 540 || window.innerHeight <= 760;
+}
+
+function syncMenuDisclosureLayout() {
+  const compact = isCompactMenuViewport();
+  runGroup.open = !compact;
+  styleGroup.open = !compact;
+}
+
+function syncMenuSummaries() {
+  runSummaryLabel.textContent = `${MODES[state.selectedMode].name} / ${MAPS[state.selectedMap].name} / ${
+    MODIFIERS[state.selectedModifier].name
+  }`;
+  const playerName = playerNameInput.value.trim().toUpperCase().slice(0, 8) || "YOU";
+  styleSummaryLabel.textContent = `${playerName} / ${COLOR_NAMES[state.custom.color] || "Red"} / ${
+    MARK_NAMES[state.custom.mark] || "Orbit"
+  }`;
 }
 
 function clamp(value, min, max) {
@@ -248,6 +290,54 @@ function makeHazard() {
   };
 }
 
+function makeLandmarks(mapKey) {
+  const layout = {
+    city: [
+      { type: "block", x: 760, y: 760, w: 460, h: 320, color: "#4f6f88" },
+      { type: "block", x: 3150, y: 760, w: 520, h: 350, color: "#63798d" },
+      { type: "block", x: 860, y: 3150, w: 540, h: 380, color: "#506172" },
+      { type: "roundabout", x: 2200, y: 2200, r: 360, color: "#cf6f30" },
+      { type: "park", x: 3060, y: 3100, w: 620, h: 430, color: "#4f9772" },
+    ],
+    desk: [
+      { type: "notebook", x: 900, y: 820, w: 880, h: 620, color: COLORS.blue },
+      { type: "sticky", x: 3100, y: 850, w: 500, h: 420, color: COLORS.gold },
+      { type: "keyboard", x: 2200, y: 3100, w: 1400, h: 520, color: COLORS.ink },
+      { type: "coffee", x: 3260, y: 2500, r: 250, color: "#8c6a44" },
+      { type: "pen", x: 1100, y: 2950, w: 1120, h: 120, color: COLORS.red },
+    ],
+    kitchen: [
+      { type: "counter", x: 800, y: 760, w: 1100, h: 420, color: "#7ea8b7" },
+      { type: "cutting", x: 3120, y: 900, w: 720, h: 520, color: "#a56e38" },
+      { type: "stove", x: 1180, y: 3060, w: 820, h: 620, color: "#3d464c" },
+      { type: "sink", x: 3220, y: 3060, w: 900, h: 540, color: "#6a97ab" },
+      { type: "table", x: 2250, y: 2100, w: 940, h: 700, color: "#8b6438" },
+    ],
+    arcade: [
+      { type: "lane", x: 820, y: 850, w: 720, h: 980, color: "#e83f6f" },
+      { type: "lane", x: 3300, y: 860, w: 740, h: 980, color: "#31a7c7" },
+      { type: "cabinet", x: 980, y: 3180, w: 680, h: 700, color: "#7556a8" },
+      { type: "cabinet", x: 3230, y: 3140, w: 700, h: 760, color: "#f0b429" },
+      { type: "token-ring", x: 2200, y: 2200, r: 390, color: "#f0b429" },
+    ],
+    garden: [
+      { type: "pond", x: 950, y: 820, w: 820, h: 520, color: "#5f92b3" },
+      { type: "bed", x: 3180, y: 880, w: 850, h: 560, color: "#a9664d" },
+      { type: "tree", x: 1040, y: 3180, r: 320, color: "#3a8754" },
+      { type: "vine", x: 2180, y: 2140, w: 1900, h: 1180, color: "#5c9c66" },
+      { type: "bed", x: 3260, y: 3160, w: 820, h: 560, color: "#b2893b" },
+    ],
+    toy: [
+      { type: "rug", x: 2200, y: 2200, w: 1900, h: 1450, color: COLORS.red },
+      { type: "track", x: 1040, y: 940, w: 1050, h: 720, color: COLORS.blue },
+      { type: "blocks", x: 3230, y: 1040, w: 820, h: 660, color: COLORS.gold },
+      { type: "castle-landmark", x: 1040, y: 3230, w: 820, h: 680, color: COLORS.violet },
+      { type: "dice-landmark", x: 3260, y: 3220, w: 700, h: 700, color: COLORS.mint },
+    ],
+  };
+  return layout[mapKey] || layout.city;
+}
+
 function botSpawnPoint() {
   let point = { x: random(240, WORLD.width - 240), y: random(240, WORLD.height - 240) };
   for (let i = 0; i < 40; i += 1) {
@@ -293,6 +383,7 @@ function resetGame() {
       : null;
   state.particles = [];
   state.popups = [];
+  state.landmarks = makeLandmarks(state.activeMap);
   state.hazards = state.activeModifier === "shrink" ? Array.from({ length: 4 }, makeHazard) : [];
   state.timeLeft = state.roundLength;
   state.chain = 0;
@@ -361,6 +452,7 @@ function resize() {
 function startGame() {
   state.custom.name = playerNameInput.value.trim().toUpperCase().slice(0, 8) || "YOU";
   playerNameInput.value = state.custom.name;
+  syncMenuSummaries();
   resetGame();
   state.mode = "playing";
   menu.classList.add("is-hidden");
@@ -753,6 +845,17 @@ function endWorld() {
   ctx.restore();
 }
 
+function viewBounds(pad = 0) {
+  const halfW = window.innerWidth / state.camera.zoom / 2 + pad;
+  const halfH = window.innerHeight / state.camera.zoom / 2 + pad;
+  return {
+    left: state.camera.x - halfW,
+    right: state.camera.x + halfW,
+    top: state.camera.y - halfH,
+    bottom: state.camera.y + halfH,
+  };
+}
+
 function drawGrid() {
   const map = MAPS[state.activeMap] || MAPS.city;
   ctx.fillStyle = map.paper;
@@ -775,21 +878,15 @@ function drawGrid() {
     ctx.lineTo(WORLD.width, y);
   }
   ctx.stroke();
-  ctx.strokeStyle = COLORS.ink;
+  ctx.strokeStyle = map.border || COLORS.ink;
   ctx.lineWidth = 4 / state.camera.zoom;
   ctx.strokeRect(0, 0, WORLD.width, WORLD.height);
   endWorld();
 }
 
 function inView(item, pad = 120) {
-  const halfW = window.innerWidth / state.camera.zoom / 2 + pad;
-  const halfH = window.innerHeight / state.camera.zoom / 2 + pad;
-  return (
-    item.x > state.camera.x - halfW &&
-    item.x < state.camera.x + halfW &&
-    item.y > state.camera.y - halfH &&
-    item.y < state.camera.y + halfH
-  );
+  const bounds = viewBounds(pad);
+  return item.x > bounds.left && item.x < bounds.right && item.y > bounds.top && item.y < bounds.bottom;
 }
 
 function drawFood(food, now) {
@@ -798,6 +895,280 @@ function drawFood(food, now) {
   ctx.arc(food.x, food.y, r, 0, TAU);
   ctx.fillStyle = food.color;
   ctx.fill();
+}
+
+function lineWidth(size = 2) {
+  return size / state.camera.zoom;
+}
+
+function drawPanelRect(x, y, w, h, color, fillAlpha = 0.05) {
+  ctx.fillStyle = `${color}16`;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth(3);
+  ctx.beginPath();
+  ctx.roundRect(x - w / 2, y - h / 2, w, h, 18);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawMapPattern(now) {
+  const map = state.activeMap;
+  const bounds = viewBounds(180);
+  ctx.save();
+  ctx.lineWidth = lineWidth(2);
+  if (map === "city") {
+    ctx.fillStyle = "rgba(29, 33, 29, 0.055)";
+    for (let x = 520; x < WORLD.width; x += 820) ctx.fillRect(x - 46, 0, 92, WORLD.height);
+    for (let y = 520; y < WORLD.height; y += 820) ctx.fillRect(0, y - 46, WORLD.width, 92);
+    ctx.strokeStyle = "rgba(29, 33, 29, 0.18)";
+    ctx.setLineDash([36, 34]);
+    ctx.beginPath();
+    for (let x = 520; x < WORLD.width; x += 820) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, WORLD.height);
+    }
+    for (let y = 520; y < WORLD.height; y += 820) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(WORLD.width, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  } else if (map === "desk") {
+    ctx.strokeStyle = "rgba(39, 116, 169, 0.14)";
+    ctx.beginPath();
+    for (let y = Math.floor(bounds.top / 92) * 92; y < bounds.bottom; y += 92) {
+      ctx.moveTo(bounds.left, y);
+      ctx.lineTo(bounds.right, y);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(223, 63, 45, 0.16)";
+    ctx.beginPath();
+    for (let x = 360; x < WORLD.width; x += 1120) {
+      ctx.moveTo(x, bounds.top);
+      ctx.lineTo(x, bounds.bottom);
+    }
+    ctx.stroke();
+  } else if (map === "kitchen") {
+    ctx.strokeStyle = "rgba(74, 54, 30, 0.14)";
+    ctx.beginPath();
+    const tile = 280;
+    for (let x = Math.floor(bounds.left / tile) * tile; x < bounds.right; x += tile) {
+      ctx.moveTo(x, bounds.top);
+      ctx.lineTo(x, bounds.bottom);
+    }
+    for (let y = Math.floor(bounds.top / tile) * tile; y < bounds.bottom; y += tile) {
+      ctx.moveTo(bounds.left, y);
+      ctx.lineTo(bounds.right, y);
+    }
+    ctx.stroke();
+  } else if (map === "arcade") {
+    ctx.strokeStyle = "rgba(117, 86, 168, 0.18)";
+    ctx.lineWidth = lineWidth(5);
+    ctx.beginPath();
+    for (let x = -WORLD.height; x < WORLD.width; x += 420) {
+      ctx.moveTo(x, WORLD.height);
+      ctx.lineTo(x + WORLD.height, 0);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(232, 63, 111, 0.14)";
+    ctx.lineWidth = lineWidth(2);
+    ctx.beginPath();
+    for (let x = 0; x < WORLD.width; x += 700) {
+      ctx.moveTo(x, bounds.top);
+      ctx.lineTo(x + Math.sin(now * 0.001) * 60, bounds.bottom);
+    }
+    ctx.stroke();
+  } else if (map === "garden") {
+    ctx.strokeStyle = "rgba(47, 155, 98, 0.2)";
+    ctx.lineWidth = lineWidth(4);
+    for (let y = 460; y < WORLD.height; y += 620) {
+      ctx.beginPath();
+      ctx.moveTo(bounds.left, y);
+      for (let x = bounds.left; x < bounds.right; x += 260) {
+        ctx.quadraticCurveTo(x + 130, y + Math.sin(x * 0.006 + now * 0.001) * 80, x + 260, y);
+      }
+      ctx.stroke();
+    }
+  } else if (map === "toy") {
+    ctx.strokeStyle = "rgba(29, 33, 29, 0.12)";
+    ctx.lineWidth = lineWidth(7);
+    ctx.beginPath();
+    for (let y = 640; y < WORLD.height; y += 900) {
+      ctx.moveTo(0, y);
+      ctx.bezierCurveTo(900, y - 260, 1550, y + 260, 2400, y);
+      ctx.bezierCurveTo(3160, y - 220, 3720, y + 180, WORLD.width, y - 40);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(201, 152, 33, 0.18)";
+    ctx.lineWidth = lineWidth(3);
+    ctx.strokeRect(540, 540, WORLD.width - 1080, WORLD.height - 1080);
+  }
+  ctx.restore();
+}
+
+function drawLandmark(item, now) {
+  if (!inView(item, Math.max(item.w || item.r || 0, item.h || item.r || 0) + 180)) return;
+  ctx.save();
+  ctx.globalAlpha = 0.72;
+  if (item.type === "block") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(2);
+    for (let i = -1; i <= 1; i += 1) {
+      ctx.strokeRect(item.x - item.w / 2 + 80 + i * 120, item.y - item.h / 2 + 70, 58, 58);
+    }
+  } else if (item.type === "roundabout") {
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(5);
+    ctx.beginPath();
+    ctx.arc(item.x, item.y, item.r, 0, TAU);
+    ctx.arc(item.x, item.y, item.r * 0.45, 0, TAU);
+    ctx.stroke();
+  } else if (item.type === "park" || item.type === "bed") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(2);
+    for (let i = 0; i < 6; i += 1) {
+      const px = item.x - item.w / 2 + 80 + i * (item.w - 160) / 5;
+      ctx.beginPath();
+      ctx.arc(px, item.y + Math.sin(i) * 70, 28, 0, TAU);
+      ctx.stroke();
+    }
+  } else if (item.type === "notebook") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(1.5);
+    for (let y = item.y - item.h / 2 + 80; y < item.y + item.h / 2 - 40; y += 70) {
+      ctx.beginPath();
+      ctx.moveTo(item.x - item.w / 2 + 80, y);
+      ctx.lineTo(item.x + item.w / 2 - 70, y);
+      ctx.stroke();
+    }
+  } else if (item.type === "sticky") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color, 0.08);
+    ctx.beginPath();
+    ctx.moveTo(item.x + item.w / 2 - 90, item.y - item.h / 2);
+    ctx.lineTo(item.x + item.w / 2, item.y - item.h / 2 + 90);
+    ctx.stroke();
+  } else if (item.type === "keyboard") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    for (let x = item.x - item.w / 2 + 80; x < item.x + item.w / 2 - 80; x += 120) {
+      for (let y = item.y - item.h / 2 + 90; y < item.y + item.h / 2 - 70; y += 110) {
+        ctx.strokeRect(x, y, 72, 54);
+      }
+    }
+  } else if (item.type === "coffee" || item.type === "token-ring") {
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(5);
+    ctx.beginPath();
+    ctx.arc(item.x, item.y, item.r, 0, TAU);
+    ctx.arc(item.x, item.y, item.r * 0.62, 0, TAU);
+    ctx.stroke();
+  } else if (item.type === "pen") {
+    ctx.translate(item.x, item.y);
+    ctx.rotate(-0.22);
+    drawPanelRect(0, 0, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.beginPath();
+    ctx.moveTo(item.w / 2, 0);
+    ctx.lineTo(item.w / 2 + 130, -item.h / 2);
+    ctx.lineTo(item.w / 2 + 130, item.h / 2);
+    ctx.closePath();
+    ctx.stroke();
+  } else if (item.type === "counter" || item.type === "cutting" || item.type === "table") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.beginPath();
+    ctx.moveTo(item.x - item.w / 2 + 70, item.y);
+    ctx.lineTo(item.x + item.w / 2 - 70, item.y);
+    ctx.moveTo(item.x, item.y - item.h / 2 + 60);
+    ctx.lineTo(item.x, item.y + item.h / 2 - 60);
+    ctx.stroke();
+  } else if (item.type === "stove") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    for (const dx of [-170, 170]) for (const dy of [-120, 120]) {
+      ctx.beginPath();
+      ctx.arc(item.x + dx, item.y + dy, 82, 0, TAU);
+      ctx.arc(item.x + dx, item.y + dy, 42, 0, TAU);
+      ctx.stroke();
+    }
+  } else if (item.type === "sink" || item.type === "pond") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.beginPath();
+    ctx.ellipse(item.x, item.y, item.w * 0.34, item.h * 0.28, 0, 0, TAU);
+    ctx.stroke();
+  } else if (item.type === "lane" || item.type === "cabinet") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(4);
+    ctx.beginPath();
+    ctx.moveTo(item.x - item.w / 2 + 80, item.y - item.h / 2 + 90);
+    ctx.lineTo(item.x + item.w / 2 - 80, item.y + item.h / 2 - 90);
+    ctx.moveTo(item.x + item.w / 2 - 80, item.y - item.h / 2 + 90);
+    ctx.lineTo(item.x - item.w / 2 + 80, item.y + item.h / 2 - 90);
+    ctx.stroke();
+  } else if (item.type === "tree") {
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(5);
+    ctx.beginPath();
+    ctx.arc(item.x, item.y, item.r, 0, TAU);
+    ctx.arc(item.x - 130, item.y + 80, item.r * 0.42, 0, TAU);
+    ctx.arc(item.x + 120, item.y - 90, item.r * 0.38, 0, TAU);
+    ctx.stroke();
+  } else if (item.type === "vine") {
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(6);
+    ctx.beginPath();
+    ctx.moveTo(item.x - item.w / 2, item.y);
+    ctx.bezierCurveTo(item.x - 450, item.y - item.h / 2, item.x + 450, item.y + item.h / 2, item.x + item.w / 2, item.y);
+    ctx.stroke();
+    for (let i = 0; i < 8; i += 1) {
+      const lx = item.x - item.w / 2 + i * item.w / 7;
+      ctx.beginPath();
+      ctx.ellipse(lx, item.y + Math.sin(i + now * 0.001) * 180, 55, 24, i, 0, TAU);
+      ctx.stroke();
+    }
+  } else if (item.type === "rug") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    ctx.strokeRect(item.x - item.w / 2 + 120, item.y - item.h / 2 + 120, item.w - 240, item.h - 240);
+  } else if (item.type === "track") {
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = lineWidth(7);
+    ctx.beginPath();
+    ctx.ellipse(item.x, item.y, item.w / 2, item.h / 2, 0.18, 0, TAU);
+    ctx.ellipse(item.x, item.y, item.w / 2 - 120, item.h / 2 - 100, 0.18, 0, TAU);
+    ctx.stroke();
+  } else if (item.type === "blocks") {
+    for (let i = 0; i < 6; i += 1) {
+      const bx = item.x - item.w / 2 + 90 + (i % 3) * 250;
+      const by = item.y - item.h / 2 + 90 + Math.floor(i / 3) * 240;
+      drawPanelRect(bx, by, 180, 150, [COLORS.red, COLORS.blue, COLORS.gold][i % 3]);
+    }
+  } else if (item.type === "castle-landmark" || item.type === "dice-landmark") {
+    drawPanelRect(item.x, item.y, item.w, item.h, item.color);
+    ctx.strokeStyle = item.color;
+    for (let i = -1; i <= 1; i += 1) {
+      ctx.strokeRect(item.x + i * 160 - 55, item.y - item.h / 2 - 80, 110, 120);
+    }
+    if (item.type === "dice-landmark") {
+      for (const dx of [-130, 130]) for (const dy of [-130, 130]) {
+        ctx.beginPath();
+        ctx.arc(item.x + dx, item.y + dy, 26, 0, TAU);
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawMapIdentity(now) {
+  drawMapPattern(now);
+  for (const landmark of state.landmarks) drawLandmark(landmark, now);
 }
 
 function drawProp(prop, now) {
@@ -947,6 +1318,7 @@ function drawTouchGuide() {
 function render(now = 0) {
   drawGrid();
   beginWorld();
+  drawMapIdentity(now);
   drawHazards(now);
   for (const food of state.foods) if (inView(food, 50)) drawFood(food, now);
   for (const prop of state.props) if (inView(prop, 90)) drawProp(prop, now);
@@ -998,6 +1370,7 @@ modeButtons.forEach((button) => {
     state.selectedMode = button.dataset.mode;
     modeButtons.forEach((item) => item.classList.toggle("is-active", item === button));
     modeSelect.value = state.selectedMode;
+    syncMenuSummaries();
   });
 });
 
@@ -1007,6 +1380,7 @@ mapButtons.forEach((button) => {
     mapButtons.forEach((item) => item.classList.toggle("is-active", item === button));
     mapSelect.value = state.selectedMap;
     state.activeMap = state.selectedMap;
+    syncMenuSummaries();
   });
 });
 
@@ -1015,6 +1389,7 @@ modifierButtons.forEach((button) => {
     state.selectedModifier = button.dataset.modifier;
     modifierButtons.forEach((item) => item.classList.toggle("is-active", item === button));
     modifierSelect.value = state.selectedModifier;
+    syncMenuSummaries();
   });
 });
 
@@ -1023,6 +1398,7 @@ modeSelect.addEventListener("change", () => {
   modeButtons.forEach((item) =>
     item.classList.toggle("is-active", item.dataset.mode === state.selectedMode),
   );
+  syncMenuSummaries();
 });
 
 mapSelect.addEventListener("change", () => {
@@ -1031,6 +1407,7 @@ mapSelect.addEventListener("change", () => {
   mapButtons.forEach((item) =>
     item.classList.toggle("is-active", item.dataset.map === state.selectedMap),
   );
+  syncMenuSummaries();
 });
 
 modifierSelect.addEventListener("change", () => {
@@ -1038,6 +1415,7 @@ modifierSelect.addEventListener("change", () => {
   modifierButtons.forEach((item) =>
     item.classList.toggle("is-active", item.dataset.modifier === state.selectedModifier),
   );
+  syncMenuSummaries();
 });
 
 surpriseButton.addEventListener("click", () => {
@@ -1055,6 +1433,7 @@ surpriseButton.addEventListener("click", () => {
   modifierButtons.forEach((item) =>
     item.classList.toggle("is-active", item.dataset.modifier === modifier),
   );
+  syncMenuSummaries();
   startGame();
 });
 
@@ -1063,6 +1442,7 @@ swatchButtons.forEach((button) => {
     state.custom.color = button.dataset.color;
     swatchButtons.forEach((item) => item.classList.toggle("is-active", item === button));
     if (state.mode === "menu" && state.player) state.player.color = state.custom.color;
+    syncMenuSummaries();
   });
 });
 
@@ -1071,8 +1451,11 @@ markButtons.forEach((button) => {
     state.custom.mark = button.dataset.mark;
     markButtons.forEach((item) => item.classList.toggle("is-active", item === button));
     if (state.mode === "menu" && state.player) state.player.mark = state.custom.mark;
+    syncMenuSummaries();
   });
 });
+
+playerNameInput.addEventListener("input", syncMenuSummaries);
 
 startButton.addEventListener("click", startGame);
 againButton.addEventListener("click", startGame);
@@ -1115,8 +1498,11 @@ window.addEventListener("keyup", (event) => {
 });
 
 window.addEventListener("resize", resize);
+window.addEventListener("resize", syncMenuDisclosureLayout);
 
 resize();
+syncMenuDisclosureLayout();
+syncMenuSummaries();
 resetGame();
 render();
 state.animationId = requestAnimationFrame(loop);

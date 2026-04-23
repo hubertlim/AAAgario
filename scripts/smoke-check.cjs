@@ -12,12 +12,6 @@ const { chromium } = require("playwright");
   page.on("pageerror", (error) => errors.push(error.message));
 
   await page.goto("http://host.docker.internal:8080", { waitUntil: "networkidle" });
-  await page.fill("#player-name", "NOVA");
-  await page.click('[data-color="#2774a9"]');
-  await page.click('[data-mark="spark"]');
-  await page.selectOption("#mode-select", "boss");
-  await page.selectOption("#map-select", "arcade");
-  await page.selectOption("#modifier-select", "gold");
   const menuLayout = await page.evaluate(() => {
     const panel = document.querySelector("#menu .panel").getBoundingClientRect();
     return {
@@ -28,6 +22,14 @@ const { chromium } = require("playwright");
       fits: panel.top >= 0 && panel.bottom <= window.innerHeight,
     };
   });
+  await page.click(".option-group-run summary");
+  await page.selectOption("#mode-select", "boss");
+  await page.selectOption("#map-select", "arcade");
+  await page.selectOption("#modifier-select", "gold");
+  await page.click(".option-group-style summary");
+  await page.fill("#player-name", "NOVA");
+  await page.click('[data-color="#2774a9"]');
+  await page.click('[data-mark="spark"]');
   await page.click("#start");
   await page.waitForTimeout(800);
 

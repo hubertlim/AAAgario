@@ -40,124 +40,148 @@
           </div>
         </div>
 
-        <div class="panel">
-          <p class="mode-label">Round length</p>
-          <div class="segmented" role="group" aria-label="Round length">
-            <button class="duration is-active" data-minutes="3" type="button">3 min</button>
-            <button class="duration" data-minutes="5" type="button">5 min</button>
-            <button class="duration" data-minutes="10" type="button">10 min</button>
-          </div>
-
-          <div class="run-lab" aria-label="Run setup">
-            <div>
-              <p class="mode-label">Mode</p>
-              <div class="choice-grid" role="group" aria-label="Game mode">
-                <button class="choice mode-choice is-active" data-mode="classic" type="button">Rush</button>
-                <button class="choice mode-choice" data-mode="boss" type="button">Boss</button>
-                <button class="choice mode-choice" data-mode="hunt" type="button">Hunt</button>
-                <button class="choice mode-choice" data-mode="swarm" type="button">Swarm</button>
-                <button class="choice mode-choice" data-mode="chain" type="button">Chain</button>
-                <button class="choice mode-choice" data-mode="tiny" type="button">Tiny</button>
+        <div class="panel menu-panel">
+          <div class="menu-columns">
+            <section class="setup-column">
+              <p class="mode-label">Round length</p>
+              <div class="segmented" role="group" aria-label="Round length">
+                <button class="duration is-active" data-minutes="3" type="button">3 min</button>
+                <button class="duration" data-minutes="5" type="button">5 min</button>
+                <button class="duration" data-minutes="10" type="button">10 min</button>
               </div>
-              <select id="mode-select" class="compact-select" aria-label="Game mode">
-                <option value="classic">Rush</option>
-                <option value="boss">Boss</option>
-                <option value="hunt">Hunt</option>
-                <option value="swarm">Swarm</option>
-                <option value="chain">Chain</option>
-                <option value="tiny">Tiny</option>
-              </select>
-            </div>
 
-            <div>
-              <p class="mode-label">Map</p>
-              <div class="choice-grid" role="group" aria-label="Map">
-                <button class="choice map-choice is-active" data-map="city" type="button">City</button>
-                <button class="choice map-choice" data-map="desk" type="button">Desk</button>
-                <button class="choice map-choice" data-map="kitchen" type="button">Kitchen</button>
-                <button class="choice map-choice" data-map="arcade" type="button">Arcade</button>
-                <button class="choice map-choice" data-map="garden" type="button">Garden</button>
-                <button class="choice map-choice" data-map="toy" type="button">Toy</button>
-              </div>
-              <select id="map-select" class="compact-select" aria-label="Map">
-                <option value="city">City</option>
-                <option value="desk">Desk</option>
-                <option value="kitchen">Kitchen</option>
-                <option value="arcade">Arcade</option>
-                <option value="garden">Garden</option>
-                <option value="toy">Toy</option>
-              </select>
-            </div>
-
-            <div>
-              <p class="mode-label">Twist</p>
-              <div class="choice-grid" role="group" aria-label="Round twist">
-                <button class="choice modifier-choice is-active" data-modifier="none" type="button">Clean</button>
-                <button class="choice modifier-choice" data-modifier="magnet" type="button">Magnet</button>
-                <button class="choice modifier-choice" data-modifier="panic" type="button">Panic</button>
-                <button class="choice modifier-choice" data-modifier="gold" type="button">Gold</button>
-                <button class="choice modifier-choice" data-modifier="shrink" type="button">Storm</button>
-                <button class="choice modifier-choice" data-modifier="combo" type="button">Combo</button>
-              </div>
-              <select id="modifier-select" class="compact-select" aria-label="Round twist">
-                <option value="none">Clean</option>
-                <option value="magnet">Magnet</option>
-                <option value="panic">Panic</option>
-                <option value="gold">Gold</option>
-                <option value="shrink">Storm</option>
-                <option value="combo">Combo</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="customizer" aria-label="Character customization">
-            <label class="name-field" for="player-name">
-              <span>Tag</span>
-              <input id="player-name" maxlength="8" value="YOU" autocomplete="off" />
-            </label>
-
-            <div>
-              <p class="mode-label">Color</p>
-              <div class="swatches" role="group" aria-label="Cell color">
-                <button class="swatch is-active" style="--swatch: #df3f2d" data-color="#df3f2d" type="button" aria-label="Red"></button>
-                <button class="swatch" style="--swatch: #1d9a78" data-color="#1d9a78" type="button" aria-label="Mint"></button>
-                <button class="swatch" style="--swatch: #2774a9" data-color="#2774a9" type="button" aria-label="Blue"></button>
-                <button class="swatch" style="--swatch: #c99821" data-color="#c99821" type="button" aria-label="Gold"></button>
-              </div>
-            </div>
-
-            <div>
-              <p class="mode-label">Mark</p>
-              <div class="marks" role="group" aria-label="Cell mark">
-                <button class="mark is-active" data-mark="orbit" type="button" aria-label="Orbit mark">
-                  <span class="mark-orbit" aria-hidden="true"></span>
+              <div class="menu-actions">
+                <button id="start" class="start" type="button">
+                  <span class="play-icon" aria-hidden="true"></span>
+                  New round
                 </button>
-                <button class="mark" data-mark="spark" type="button" aria-label="Spark mark">
-                  <span class="mark-spark" aria-hidden="true"></span>
-                </button>
-                <button class="mark" data-mark="core" type="button" aria-label="Core mark">
-                  <span class="mark-core" aria-hidden="true"></span>
-                </button>
+
+                <button id="surprise" class="secondary-action surprise-action" type="button">Surprise me</button>
               </div>
-            </div>
-          </div>
 
-          <button id="start" class="start" type="button">
-            <span class="play-icon" aria-hidden="true"></span>
-            New round
-          </button>
+              <details class="option-group option-group-run" open>
+                <summary>
+                  <span>Run Setup</span>
+                  <strong id="run-summary">Rush / City / Clean</strong>
+                </summary>
+                <div class="option-group-body">
+                  <div class="run-lab" aria-label="Run setup">
+                    <div>
+                      <p class="mode-label">Mode</p>
+                      <div class="choice-grid" role="group" aria-label="Game mode">
+                        <button class="choice mode-choice is-active" data-mode="classic" type="button">Rush</button>
+                        <button class="choice mode-choice" data-mode="boss" type="button">Boss</button>
+                        <button class="choice mode-choice" data-mode="hunt" type="button">Hunt</button>
+                        <button class="choice mode-choice" data-mode="swarm" type="button">Swarm</button>
+                        <button class="choice mode-choice" data-mode="chain" type="button">Chain</button>
+                        <button class="choice mode-choice" data-mode="tiny" type="button">Tiny</button>
+                      </div>
+                      <select id="mode-select" class="compact-select" aria-label="Game mode">
+                        <option value="classic">Rush</option>
+                        <option value="boss">Boss</option>
+                        <option value="hunt">Hunt</option>
+                        <option value="swarm">Swarm</option>
+                        <option value="chain">Chain</option>
+                        <option value="tiny">Tiny</option>
+                      </select>
+                    </div>
 
-          <button id="surprise" class="secondary-action surprise-action" type="button">Surprise me</button>
+                    <div>
+                      <p class="mode-label">Map</p>
+                      <div class="choice-grid" role="group" aria-label="Map">
+                        <button class="choice map-choice is-active" data-map="city" type="button">City</button>
+                        <button class="choice map-choice" data-map="desk" type="button">Desk</button>
+                        <button class="choice map-choice" data-map="kitchen" type="button">Kitchen</button>
+                        <button class="choice map-choice" data-map="arcade" type="button">Arcade</button>
+                        <button class="choice map-choice" data-map="garden" type="button">Garden</button>
+                        <button class="choice map-choice" data-map="toy" type="button">Toy</button>
+                      </div>
+                      <select id="map-select" class="compact-select" aria-label="Map">
+                        <option value="city">City</option>
+                        <option value="desk">Desk</option>
+                        <option value="kitchen">Kitchen</option>
+                        <option value="arcade">Arcade</option>
+                        <option value="garden">Garden</option>
+                        <option value="toy">Toy</option>
+                      </select>
+                    </div>
 
-          <div class="concepts" aria-label="Concept ideas">
-            <article>
-              <strong>Cell Rush</strong>
-              <span>Eat motes, rivals, and city marks in a fast route puzzle.</span>
-            </article>
-            <article>
-              <strong>Gravity Bloom</strong>
-              <span>Cleaner input, automatic nearby pulls, bigger object cascades.</span>
-            </article>
+                    <div>
+                      <p class="mode-label">Twist</p>
+                      <div class="choice-grid" role="group" aria-label="Round twist">
+                        <button class="choice modifier-choice is-active" data-modifier="none" type="button">Clean</button>
+                        <button class="choice modifier-choice" data-modifier="magnet" type="button">Magnet</button>
+                        <button class="choice modifier-choice" data-modifier="panic" type="button">Panic</button>
+                        <button class="choice modifier-choice" data-modifier="gold" type="button">Gold</button>
+                        <button class="choice modifier-choice" data-modifier="shrink" type="button">Storm</button>
+                        <button class="choice modifier-choice" data-modifier="combo" type="button">Combo</button>
+                      </div>
+                      <select id="modifier-select" class="compact-select" aria-label="Round twist">
+                        <option value="none">Clean</option>
+                        <option value="magnet">Magnet</option>
+                        <option value="panic">Panic</option>
+                        <option value="gold">Gold</option>
+                        <option value="shrink">Storm</option>
+                        <option value="combo">Combo</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </section>
+
+            <section class="custom-column">
+              <details class="option-group option-group-style" open>
+                <summary>
+                  <span>Cell Style</span>
+                  <strong id="style-summary">YOU / Red / Orbit</strong>
+                </summary>
+                <div class="option-group-body">
+                  <div class="customizer" aria-label="Character customization">
+                    <label class="name-field" for="player-name">
+                      <span>Tag</span>
+                      <input id="player-name" maxlength="8" value="YOU" autocomplete="off" />
+                    </label>
+
+                    <div>
+                      <p class="mode-label">Color</p>
+                      <div class="swatches" role="group" aria-label="Cell color">
+                        <button class="swatch is-active" style="--swatch: #df3f2d" data-color="#df3f2d" type="button" aria-label="Red"></button>
+                        <button class="swatch" style="--swatch: #1d9a78" data-color="#1d9a78" type="button" aria-label="Mint"></button>
+                        <button class="swatch" style="--swatch: #2774a9" data-color="#2774a9" type="button" aria-label="Blue"></button>
+                        <button class="swatch" style="--swatch: #c99821" data-color="#c99821" type="button" aria-label="Gold"></button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p class="mode-label">Mark</p>
+                      <div class="marks" role="group" aria-label="Cell mark">
+                        <button class="mark is-active" data-mark="orbit" type="button" aria-label="Orbit mark">
+                          <span class="mark-orbit" aria-hidden="true"></span>
+                        </button>
+                        <button class="mark" data-mark="spark" type="button" aria-label="Spark mark">
+                          <span class="mark-spark" aria-hidden="true"></span>
+                        </button>
+                        <button class="mark" data-mark="core" type="button" aria-label="Core mark">
+                          <span class="mark-core" aria-hidden="true"></span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <div class="concepts" aria-label="Concept ideas">
+                <article>
+                  <strong>Cell Rush</strong>
+                  <span>Eat motes, rivals, and city marks in a fast route puzzle.</span>
+                </article>
+                <article>
+                  <strong>Gravity Bloom</strong>
+                  <span>Cleaner input, automatic nearby pulls, bigger object cascades.</span>
+                </article>
+              </div>
+            </section>
           </div>
         </div>
       </section>
