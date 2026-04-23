@@ -16,6 +16,7 @@ const durationButtons = [...document.querySelectorAll(".duration")];
 const modeButtons = [...document.querySelectorAll(".mode-choice")];
 const mapButtons = [...document.querySelectorAll(".map-choice")];
 const modifierButtons = [...document.querySelectorAll(".modifier-choice")];
+const powerupButtons = [...document.querySelectorAll(".powerup-choice")];
 const surpriseButton = document.querySelector("#surprise");
 const modeSelect = document.querySelector("#mode-select");
 const mapSelect = document.querySelector("#map-select");
@@ -31,6 +32,8 @@ const massLabel = document.querySelector("#mass");
 const rankLabel = document.querySelector("#rank");
 const timeLabel = document.querySelector("#time");
 const runInfoLabel = document.querySelector("#run-info");
+const boostCard = document.querySelector("#boost-card");
+const boostStatusLabel = document.querySelector("#boost-status");
 const resultTitle = document.querySelector("#result-title");
 const resultCopy = document.querySelector("#result-copy");
 const finalMass = document.querySelector("#final-mass");
@@ -57,6 +60,21 @@ const MARK_NAMES = {
   orbit: "Orbit",
   spark: "Spark",
   core: "Core",
+};
+const POWERUP_CONFIG = {
+  speed: {
+    name: "Boost",
+    color: "#31a7c7",
+    accent: "#d9fbff",
+    duration: 8,
+    stackBonus: 0.16,
+    maxStacks: 4,
+    fieldMax: 3,
+    spawnWindow: [6, 8],
+    respawnWindow: [17, 24],
+    fieldLife: 18,
+    eventChainStep: 10,
+  },
 };
 const MAPS = {
   city: {
@@ -173,9 +191,11 @@ const state = {
   selectedMode: "classic",
   selectedMap: "city",
   selectedModifier: "none",
+  selectedPowerups: true,
   activeMode: "classic",
   activeMap: "city",
   activeModifier: "none",
+  activePowerups: true,
   timeLeft: 180,
   roundLength: 180,
   lastTime: 0,
@@ -190,11 +210,15 @@ const state = {
   popups: [],
   landmarks: [],
   hazards: [],
+  powerups: [],
   boss: null,
   huntTargets: [],
   huntIndex: 0,
   comboIndex: 0,
   magnetTimer: 0,
+  speedStacks: [],
+  powerupSpawnTimer: 0,
+  nextPowerupChain: 0,
   goldTimer: 0,
   goldCooldown: 0,
   modeNotice: "",
@@ -233,7 +257,7 @@ function syncMenuDisclosureLayout() {
 function syncMenuSummaries() {
   runSummaryLabel.textContent = `${MODES[state.selectedMode].name} / ${MAPS[state.selectedMap].name} / ${
     MODIFIERS[state.selectedModifier].name
-  }`;
+  } / ${state.selectedPowerups ? "Boosts" : "Pure"}`;
   const playerName = playerNameInput.value.trim().toUpperCase().slice(0, 8) || "YOU";
   styleSummaryLabel.textContent = `${playerName} / ${COLOR_NAMES[state.custom.color] || "Red"} / ${
     MARK_NAMES[state.custom.mark] || "Orbit"
@@ -288,6 +312,66 @@ function makeHazard() {
     r: random(170, 280),
     pulse: random(0, TAU),
   };
+}
+
+function powerupSpawnPoint(anchor = null) {
+  if (anchor) {
+    for (let i = 0; i < 14; i += 1) {
+      const angle = random(0, TAU);
+      const distanceFromAnchor = random(180, 320);
+      const x = clamp(anchor.x + Math.cos(angle) * distanceFromAnchor, 110, WORLD.width - 110);
+      const y = clamp(anchor.y + Math.sin(angle) * distanceFromAnchor, 110, WORLD.height - 110);
+      if (Math.hypot(x - state.player.x, y - state.player.y) > state.player.radius + 70) return { x, y };
+    }
+  }
+  return {
+    x: random(120, WORLD.width - 120),
+    y: random(120, WORLD.height - 120),
+  };
+}
+
+function makePowerup(kind = "speed", anchor = null) {
+  const point = powerupSpawnPoint(anchor);
+  return {
+    kind,
+    x: point.x,
+    y: point.y,
+    r: 18,
+    angle: random(0, TAU),
+    spin: random(-1.4, 1.4),
+    pulse: random(0, TAU),
+    life: POWERUP_CONFIG[kind].fieldLife,
+  };
+}
+
+function spawnPowerup(kind = "speed", anchor = null) {
+  if (!state.activePowerups) return false;
+  const config = POWERUP_CONFIG[kind];
+  if (!config || state.powerups.length >= config.fieldMax) return false;
+  state.powerups.push(makePowerup(kind, anchor));
+  return true;
+}
+
+function pushSpeedStack() {
+  const config = POWERUP_CONFIG.speed;
+  if (state.speedStacks.length < config.maxStacks) {
+    state.speedStacks.push(config.duration);
+    return state.speedStacks.length;
+  }
+  let shortestIndex = 0;
+  for (let i = 1; i < state.speedStacks.length; i += 1) {
+    if (state.speedStacks[i] < state.speedStacks[shortestIndex]) shortestIndex = i;
+  }
+  state.speedStacks[shortestIndex] = Math.max(state.speedStacks[shortestIndex], config.duration);
+  return state.speedStacks.length;
+}
+
+function maybeSpawnEventPowerup(target) {
+  if (!state.activePowerups) return;
+  while (state.chain >= state.nextPowerupChain) {
+    if (spawnPowerup("speed", target)) popup("BOOST DROP", target.x, target.y - 18, POWERUP_CONFIG.speed.color);
+    state.nextPowerupChain += POWERUP_CONFIG.speed.eventChainStep;
+  }
 }
 
 function makeLandmarks(mapKey) {
@@ -352,6 +436,7 @@ function resetGame() {
   state.activeMode = state.selectedMode;
   state.activeMap = state.selectedMap;
   state.activeModifier = state.selectedModifier;
+  state.activePowerups = state.selectedPowerups;
   state.roundLength = state.selectedMinutes * 60;
   if (state.activeMode === "chain") state.roundLength = Math.min(state.roundLength, 120);
   state.player = createCell(
@@ -385,6 +470,7 @@ function resetGame() {
   state.popups = [];
   state.landmarks = makeLandmarks(state.activeMap);
   state.hazards = state.activeModifier === "shrink" ? Array.from({ length: 4 }, makeHazard) : [];
+  state.powerups = [];
   state.timeLeft = state.roundLength;
   state.chain = 0;
   state.bestChain = 0;
@@ -398,6 +484,11 @@ function resetGame() {
   state.huntIndex = 0;
   state.comboIndex = 0;
   state.magnetTimer = 0;
+  state.speedStacks = [];
+  state.powerupSpawnTimer = state.activePowerups
+    ? random(...POWERUP_CONFIG.speed.spawnWindow)
+    : Infinity;
+  state.nextPowerupChain = POWERUP_CONFIG.speed.eventChainStep;
   state.goldTimer = state.activeModifier === "gold" ? 12 : 0;
   state.goldCooldown = 16;
   state.modeNotice = `${MODES[state.activeMode].name} / ${MAPS[state.activeMap].name} / ${
@@ -459,6 +550,7 @@ function startGame() {
   pauseMenu.classList.add("is-hidden");
   summary.classList.add("is-hidden");
   hud.classList.remove("is-hidden");
+  updateHud();
 }
 
 function openPauseMenu() {
@@ -538,6 +630,7 @@ function collect(cell, target, mass, color, count) {
       state.magnetTimer = 5;
       popup("MAGNET", target.x, target.y, COLORS.blue);
     }
+    maybeSpawnEventPowerup(target);
   }
   burst(target.x, target.y, color, count);
 }
@@ -576,7 +669,9 @@ function updatePlayer(dt) {
   }
 
   const tinyBoost = state.activeMode === "tiny" ? 42 : 0;
-  const speed = clamp(270 - player.radius * 1.22 + tinyBoost, 95, 285);
+  const boostMultiplier = 1 + Math.min(state.speedStacks.length, POWERUP_CONFIG.speed.maxStacks) * POWERUP_CONFIG.speed.stackBonus;
+  const baseSpeed = clamp(270 - player.radius * 1.22 + tinyBoost, 95, 285);
+  const speed = clamp(baseSpeed * boostMultiplier, 95, 435);
   player.vx += (targetVx * speed - player.vx) * Math.min(1, dt * 9);
   player.vy += (targetVy * speed - player.vy) * Math.min(1, dt * 9);
   player.x = clamp(player.x + player.vx * dt, player.radius, WORLD.width - player.radius);
@@ -746,6 +841,39 @@ function updatePopups(dt) {
   }
 }
 
+function updatePowerups(dt) {
+  if (!state.activePowerups) return;
+
+  for (let i = state.speedStacks.length - 1; i >= 0; i -= 1) {
+    state.speedStacks[i] -= dt;
+    if (state.speedStacks[i] <= 0) state.speedStacks.splice(i, 1);
+  }
+
+  state.powerupSpawnTimer -= dt;
+  if (state.powerupSpawnTimer <= 0) {
+    spawnPowerup("speed");
+    state.powerupSpawnTimer = random(...POWERUP_CONFIG.speed.respawnWindow);
+  }
+
+  for (let i = state.powerups.length - 1; i >= 0; i -= 1) {
+    const powerup = state.powerups[i];
+    powerup.life -= dt;
+    powerup.angle += dt * powerup.spin;
+    powerup.pulse += dt * 2.4;
+    if (powerup.life <= 0) {
+      state.powerups.splice(i, 1);
+      continue;
+    }
+    if (distance(state.player, powerup) < state.player.radius + powerup.r * 0.72) {
+      const stacks = pushSpeedStack();
+      burst(powerup.x, powerup.y, POWERUP_CONFIG.speed.color, 18, 1.25);
+      popup(`BOOST x${stacks}`, powerup.x, powerup.y - 10, POWERUP_CONFIG.speed.color);
+      state.shake = Math.min(8, state.shake + 1.2);
+      state.powerups.splice(i, 1);
+    }
+  }
+}
+
 function updateModifiers(dt) {
   if (state.noticeTimer > 0) state.noticeTimer -= dt;
   if (state.magnetTimer > 0) {
@@ -801,6 +929,7 @@ function update(dt) {
   updateCollections();
   updateParticles(dt);
   updatePopups(dt);
+  updatePowerups(dt);
   updateModifiers(dt);
 
   const player = state.player;
@@ -829,6 +958,19 @@ function updateHud() {
     runInfoLabel.textContent = `${state.comboIndex + 1}/${state.huntTargets.length}`;
   } else {
     runInfoLabel.textContent = MODES[state.activeMode].name;
+  }
+
+  boostCard.classList.toggle("is-hidden", !state.activePowerups);
+  boostCard.classList.toggle("is-live", state.speedStacks.length > 0);
+  if (!state.activePowerups) return;
+  if (state.speedStacks.length > 0) {
+    boostStatusLabel.textContent = `x${state.speedStacks.length} ${Math.ceil(Math.max(...state.speedStacks))}s`;
+  } else if (state.powerups.length > 0) {
+    boostStatusLabel.textContent = `Field ${state.powerups.length}`;
+  } else if (state.powerupSpawnTimer < 2.5) {
+    boostStatusLabel.textContent = "Soon";
+  } else {
+    boostStatusLabel.textContent = "Seeding";
   }
 }
 
@@ -895,6 +1037,35 @@ function drawFood(food, now) {
   ctx.arc(food.x, food.y, r, 0, TAU);
   ctx.fillStyle = food.color;
   ctx.fill();
+}
+
+function drawPowerup(powerup, now) {
+  const config = POWERUP_CONFIG[powerup.kind];
+  const pulse = Math.sin(now * 0.006 + powerup.pulse);
+  ctx.save();
+  ctx.translate(powerup.x, powerup.y);
+  ctx.rotate(powerup.angle);
+  ctx.globalAlpha = clamp(powerup.life / 2.2, 0.32, 1);
+  ctx.strokeStyle = config.color;
+  ctx.fillStyle = `${config.accent}26`;
+  ctx.lineWidth = 3.4 / state.camera.zoom;
+  ctx.beginPath();
+  ctx.arc(0, 0, powerup.r + 10 + pulse * 3, 0, TAU);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, powerup.r, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.lineWidth = 4 / state.camera.zoom;
+  ctx.beginPath();
+  ctx.moveTo(-7, 4);
+  ctx.lineTo(0, -6);
+  ctx.lineTo(7, 4);
+  ctx.moveTo(-7, 13);
+  ctx.lineTo(0, 3);
+  ctx.lineTo(7, 13);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function lineWidth(size = 2) {
@@ -1321,6 +1492,7 @@ function render(now = 0) {
   drawMapIdentity(now);
   drawHazards(now);
   for (const food of state.foods) if (inView(food, 50)) drawFood(food, now);
+  for (const powerup of state.powerups) if (inView(powerup, 90)) drawPowerup(powerup, now);
   for (const prop of state.props) if (inView(prop, 90)) drawProp(prop, now);
   for (const bot of state.bots) if (inView(bot, 160)) drawCell(bot, now);
   if (state.boss && inView(state.boss, 260)) drawCell(state.boss, now);
@@ -1347,6 +1519,16 @@ function render(now = 0) {
     ctx.font = "800 15px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText(`Magnet ${Math.ceil(state.magnetTimer)}`, window.innerWidth / 2, window.innerHeight - 58);
+  }
+  if (state.mode === "playing" && state.speedStacks.length > 0) {
+    ctx.fillStyle = POWERUP_CONFIG.speed.color;
+    ctx.font = "800 15px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      `Boost x${state.speedStacks.length} ${Math.ceil(Math.max(...state.speedStacks))}s`,
+      window.innerWidth / 2,
+      window.innerHeight - 80,
+    );
   }
 }
 
@@ -1389,6 +1571,14 @@ modifierButtons.forEach((button) => {
     state.selectedModifier = button.dataset.modifier;
     modifierButtons.forEach((item) => item.classList.toggle("is-active", item === button));
     modifierSelect.value = state.selectedModifier;
+    syncMenuSummaries();
+  });
+});
+
+powerupButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.selectedPowerups = button.dataset.powerups === "on";
+    powerupButtons.forEach((item) => item.classList.toggle("is-active", item === button));
     syncMenuSummaries();
   });
 });

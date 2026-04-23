@@ -125,6 +125,14 @@
                         <option value="combo">Combo</option>
                       </select>
                     </div>
+
+                    <div>
+                      <p class="mode-label">Power ups</p>
+                      <div class="binary-grid" role="group" aria-label="Power ups">
+                        <button class="choice powerup-choice is-active" data-powerups="on" type="button">On</button>
+                        <button class="choice powerup-choice" data-powerups="off" type="button">Off</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </details>
@@ -202,6 +210,10 @@
         <div>
           <span>Run</span>
           <strong id="run-info">Rush</strong>
+        </div>
+        <div id="boost-card" class="boost-card is-hidden">
+          <span>Boost</span>
+          <strong id="boost-status">Seeding</strong>
         </div>
         <button id="stop" class="stop-button" type="button">
           <span class="stop-icon" aria-hidden="true"></span>

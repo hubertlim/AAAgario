@@ -202,6 +202,12 @@ h2 {
   gap: 6px;
 }
 
+.binary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
 .choice {
   min-height: 38px;
   border: 2px solid var(--ink);
@@ -417,7 +423,7 @@ h2 {
   left: max(12px, env(safe-area-inset-left));
   right: max(12px, env(safe-area-inset-right));
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(92px, 0.7fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(92px, 0.72fr);
   gap: 8px;
   align-items: center;
 }
@@ -455,6 +461,18 @@ h2 {
   line-height: 1.1;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.boost-card {
+  position: relative;
+}
+
+.boost-card strong {
+  color: var(--blue);
+}
+
+.boost-card.is-live strong {
+  color: var(--mint);
 }
 
 .stop-button,
@@ -624,7 +642,7 @@ h2 {
   }
 
   .hud {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
   }
 
@@ -661,6 +679,157 @@ h2 {
 
   .concepts {
     display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .menu,
+  .pause-menu,
+  .summary {
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    gap: 8px;
+  }
+
+  .panel,
+  .menu-panel,
+  .pause-menu .panel,
+  .summary .panel {
+    width: min(90vw, 352px);
+  }
+
+  .menu-panel {
+    max-height: calc(100svh - 16px);
+    overflow-y: auto;
+  }
+
+  .panel {
+    padding: 8px;
+    box-shadow: 5px 5px 0 rgba(29, 33, 29, 0.08);
+  }
+
+  .mode-label,
+  .name-field span,
+  .option-group > summary span,
+  .hud span,
+  .stats span {
+    font-size: 0.64rem;
+  }
+
+  .duration,
+  .choice,
+  .compact-select {
+    min-height: 36px;
+    font-size: 0.76rem;
+  }
+
+  .option-group > summary {
+    grid-template-columns: 1fr;
+    gap: 3px;
+    align-items: start;
+    min-height: 0;
+    padding: 8px 10px;
+  }
+
+  .option-group > summary strong {
+    width: 100%;
+    font-size: 0.86rem;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .option-group-body {
+    padding: 0 8px 8px;
+  }
+
+  .customizer {
+    gap: 6px;
+  }
+
+  .swatches,
+  .marks,
+  .binary-grid {
+    gap: 5px;
+  }
+
+  .name-field input,
+  .swatch,
+  .mark {
+    min-height: 36px;
+    height: 36px;
+  }
+
+  .swatch::before,
+  .mark span {
+    width: 18px;
+    height: 18px;
+  }
+
+  .start,
+  .secondary-action,
+  .surprise-action {
+    min-height: 44px;
+    font-size: 0.94rem;
+  }
+
+  .start {
+    gap: 8px;
+  }
+
+  .play-icon,
+  .replay-icon,
+  .stop-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .hud {
+    top: max(8px, env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .hud > div,
+  .stop-button,
+  .stats > div {
+    min-height: 38px;
+  }
+
+  .hud > div,
+  .stats > div {
+    padding: 4px 7px;
+  }
+
+  .hud strong,
+  .stats strong {
+    font-size: 0.84rem;
+  }
+
+  .stop-button {
+    grid-column: 1 / -1;
+    min-height: 44px;
+  }
+
+  .pause-menu,
+  .summary {
+    align-content: end;
+  }
+
+  .pause-menu .panel,
+  .summary .panel {
+    padding: 12px 10px;
+  }
+
+  .pause-actions,
+  .stats {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  h2 {
+    font-size: clamp(1.7rem, 10vw, 2.5rem);
   }
 }
 
