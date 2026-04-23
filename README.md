@@ -2,7 +2,7 @@
 
 [Play on GitHub Pages](https://hubertlim.github.io/AAAgario/)
 
-AAAgario is a single-player browser arena game that blends the readable growth loop of Agar.io with the short-session routing pressure of Hole.io. Start tiny, eat motes, absorb smaller rivals, unlock bigger city props, and chase the cleanest route before the timer runs out.
+AAAgario is a single-player browser arena game that blends the readable growth loop of Agar.io with the short-session routing pressure of Hole.io. Start tiny, eat motes, absorb smaller rivals, unlock bigger props, and chase the cleanest route before the timer runs out.
 
 ![AAAgario preview](docs/social-preview.svg)
 
@@ -10,6 +10,10 @@ AAAgario is a single-player browser arena game that blends the readable growth l
 
 - **Instant browser play** with no account, backend, or install step.
 - **Short timed rounds** at 3, 5, or 10 minutes.
+- **Six modes**: Rush, Boss, Hunt, Swarm, Chain, and Tiny.
+- **Six maps**: City, Desk, Kitchen, Arcade, Garden, and Toy.
+- **Six twists**: Clean, Magnet, Panic, Gold, Storm, and Combo.
+- **Bot personalities** like Bully, Coward, Snacker, Revenge, and Wobbler.
 - **Smooth pointer, touch, WASD, and arrow-key controls** for desktop and mobile.
 - **Custom player tag, color, and mark** so each run feels a little more yours.
 - **Canvas-first performance** with one render surface, pooled objects, and viewport culling.
@@ -51,29 +55,34 @@ In the repository settings, set **Pages** to use **GitHub Actions** as the sourc
 
 ```text
 .
-├── index.html              # SPA shell and social metadata
-├── src/
-│   ├── main.js             # game loop, simulation, input, AI, rendering
-│   └── styles.css          # responsive line-art UI
-├── docs/social-preview.svg # GitHub and social preview artwork
-├── scripts/smoke-check.cjs # Playwright smoke check for served builds
-├── Dockerfile              # static nginx image
-├── docker-compose.yml      # local container runner
-└── nginx.conf              # SPA-friendly static server config
+|-- index.html              # SPA shell and social metadata
+|-- src/
+|   |-- main.js             # game loop, simulation, input, AI, rendering
+|   `-- styles.css          # responsive line-art UI
+|-- docs/social-preview.svg # GitHub and social preview artwork
+|-- scripts/
+|   |-- smoke-check.cjs     # Playwright smoke check for served builds
+|   `-- matrix-check.cjs    # option-family launch matrix
+|-- Dockerfile              # static nginx image
+|-- docker-compose.yml      # local container runner
+`-- nginx.conf              # SPA-friendly static server config
 ```
 
-## Smoke Check
+## Smoke Checks
 
-The smoke check expects the game to be running at `http://localhost:8080` from the host machine and uses Playwright to verify that the game starts, renders a nonblank canvas, and returns to the menu.
+The smoke checks expect the game to be running at `http://localhost:8080` from the host machine and use Playwright to verify that the game starts, renders a nonblank canvas, and returns to the menu.
 
 ```powershell
 node scripts/smoke-check.cjs
+node scripts/matrix-check.cjs
 ```
 
 ## Design Notes
 
 - **Agar.io loop:** start tiny, collect pellets, eat smaller rivals, avoid larger rivals, and grow slower as mass increases.
 - **Hole.io loop:** short timed runs, growth thresholds unlock bigger world objects, and optimal routing matters.
+- **Replay variety:** every run can mix one mode, one map, and one twist, or use Surprise Me for a random setup.
+- **Funny pressure:** simple bot personalities and reactive objects make each short round less predictable.
 - **UI direction:** crisp line art, large touch targets, minimal HUD, and immediate play.
 
 ## Roadmap
@@ -81,5 +90,4 @@ node scripts/smoke-check.cjs
 - Add persistent best scores with `localStorage`.
 - Add sound effects and haptic feedback for collection chains.
 - Add more prop tiers and map landmarks.
-- Add a pause overlay with restart and settings controls.
 - Capture automated screenshots for releases.

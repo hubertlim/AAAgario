@@ -48,6 +48,68 @@
             <button class="duration" data-minutes="10" type="button">10 min</button>
           </div>
 
+          <div class="run-lab" aria-label="Run setup">
+            <div>
+              <p class="mode-label">Mode</p>
+              <div class="choice-grid" role="group" aria-label="Game mode">
+                <button class="choice mode-choice is-active" data-mode="classic" type="button">Rush</button>
+                <button class="choice mode-choice" data-mode="boss" type="button">Boss</button>
+                <button class="choice mode-choice" data-mode="hunt" type="button">Hunt</button>
+                <button class="choice mode-choice" data-mode="swarm" type="button">Swarm</button>
+                <button class="choice mode-choice" data-mode="chain" type="button">Chain</button>
+                <button class="choice mode-choice" data-mode="tiny" type="button">Tiny</button>
+              </div>
+              <select id="mode-select" class="compact-select" aria-label="Game mode">
+                <option value="classic">Rush</option>
+                <option value="boss">Boss</option>
+                <option value="hunt">Hunt</option>
+                <option value="swarm">Swarm</option>
+                <option value="chain">Chain</option>
+                <option value="tiny">Tiny</option>
+              </select>
+            </div>
+
+            <div>
+              <p class="mode-label">Map</p>
+              <div class="choice-grid" role="group" aria-label="Map">
+                <button class="choice map-choice is-active" data-map="city" type="button">City</button>
+                <button class="choice map-choice" data-map="desk" type="button">Desk</button>
+                <button class="choice map-choice" data-map="kitchen" type="button">Kitchen</button>
+                <button class="choice map-choice" data-map="arcade" type="button">Arcade</button>
+                <button class="choice map-choice" data-map="garden" type="button">Garden</button>
+                <button class="choice map-choice" data-map="toy" type="button">Toy</button>
+              </div>
+              <select id="map-select" class="compact-select" aria-label="Map">
+                <option value="city">City</option>
+                <option value="desk">Desk</option>
+                <option value="kitchen">Kitchen</option>
+                <option value="arcade">Arcade</option>
+                <option value="garden">Garden</option>
+                <option value="toy">Toy</option>
+              </select>
+            </div>
+
+            <div>
+              <p class="mode-label">Twist</p>
+              <div class="choice-grid" role="group" aria-label="Round twist">
+                <button class="choice modifier-choice is-active" data-modifier="none" type="button">Clean</button>
+                <button class="choice modifier-choice" data-modifier="magnet" type="button">Magnet</button>
+                <button class="choice modifier-choice" data-modifier="panic" type="button">Panic</button>
+                <button class="choice modifier-choice" data-modifier="gold" type="button">Gold</button>
+                <button class="choice modifier-choice" data-modifier="shrink" type="button">Storm</button>
+                <button class="choice modifier-choice" data-modifier="combo" type="button">Combo</button>
+              </div>
+              <select id="modifier-select" class="compact-select" aria-label="Round twist">
+                <option value="none">Clean</option>
+                <option value="magnet">Magnet</option>
+                <option value="panic">Panic</option>
+                <option value="gold">Gold</option>
+                <option value="shrink">Storm</option>
+                <option value="combo">Combo</option>
+              </select>
+            </div>
+          </div>
+
           <div class="customizer" aria-label="Character customization">
             <label class="name-field" for="player-name">
               <span>Tag</span>
@@ -85,6 +147,8 @@
             New round
           </button>
 
+          <button id="surprise" class="secondary-action surprise-action" type="button">Surprise me</button>
+
           <div class="concepts" aria-label="Concept ideas">
             <article>
               <strong>Cell Rush</strong>
@@ -110,6 +174,10 @@
         <div>
           <span>Time</span>
           <strong id="time">03:00</strong>
+        </div>
+        <div>
+          <span>Run</span>
+          <strong id="run-info">Rush</strong>
         </div>
         <button id="stop" class="stop-button" type="button">
           <span class="stop-icon" aria-hidden="true"></span>

@@ -3,7 +3,7 @@ const { chromium } = require("playwright");
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
-    viewport: { width: 390, height: 844 },
+    viewport: { width: 483, height: 654 },
     deviceScaleFactor: 2,
     isMobile: true,
     hasTouch: true,
@@ -15,6 +15,19 @@ const { chromium } = require("playwright");
   await page.fill("#player-name", "NOVA");
   await page.click('[data-color="#2774a9"]');
   await page.click('[data-mark="spark"]');
+  await page.selectOption("#mode-select", "boss");
+  await page.selectOption("#map-select", "arcade");
+  await page.selectOption("#modifier-select", "gold");
+  const menuLayout = await page.evaluate(() => {
+    const panel = document.querySelector("#menu .panel").getBoundingClientRect();
+    return {
+      top: panel.top,
+      bottom: panel.bottom,
+      height: panel.height,
+      viewportHeight: window.innerHeight,
+      fits: panel.top >= 0 && panel.bottom <= window.innerHeight,
+    };
+  });
   await page.click("#start");
   await page.waitForTimeout(800);
 
@@ -42,6 +55,7 @@ const { chromium } = require("playwright");
       sample: Array.from(sample),
       mass: document.querySelector("#mass").textContent,
       time: document.querySelector("#time").textContent,
+      runInfo: document.querySelector("#run-info").textContent,
     };
   });
   await page.click("#stop");
@@ -78,19 +92,24 @@ const { chromium } = require("playwright");
     name: document.querySelector("#player-name").value,
     activeColor: document.querySelector(".swatch.is-active")?.dataset.color,
     activeMark: document.querySelector(".mark.is-active")?.dataset.mark,
+    activeMode: document.querySelector(".mode-choice.is-active")?.dataset.mode,
+    activeMap: document.querySelector(".map-choice.is-active")?.dataset.map,
+    activeModifier: document.querySelector(".modifier-choice.is-active")?.dataset.modifier,
   }));
 
-  console.log(JSON.stringify({ result, afterStop, afterResume, afterMenu, errors }, null, 2));
+  console.log(JSON.stringify({ menuLayout, result, afterStop, afterResume, afterMenu, errors }, null, 2));
   await browser.close();
 
   const sampledPaper =
     result.sample[0] === 247 && result.sample[1] === 244 && result.sample[2] === 234;
   if (
     errors.length > 0 ||
+    !menuLayout.fits ||
     result.hudHidden ||
     result.pauseButtonCount !== 0 ||
     !result.stopVisible ||
     result.stopText !== "Stop" ||
+    result.runInfo !== "Boss" ||
     !afterStop.menuHidden ||
     afterStop.pauseHidden ||
     afterStop.hudHidden ||
@@ -104,6 +123,9 @@ const { chromium } = require("playwright");
     afterMenu.name !== "NOVA" ||
     afterMenu.activeColor !== "#2774a9" ||
     afterMenu.activeMark !== "spark" ||
+    afterMenu.activeMode !== "boss" ||
+    afterMenu.activeMap !== "arcade" ||
+    afterMenu.activeModifier !== "gold" ||
     result.canvasWidth === 0 ||
     result.canvasHeight === 0 ||
     sampledPaper
