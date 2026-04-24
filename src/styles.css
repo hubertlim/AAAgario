@@ -141,6 +141,7 @@ h2 {
 .custom-column {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .menu-actions {
@@ -238,6 +239,9 @@ h2 {
 }
 
 .option-group {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   border: 2px solid var(--ink);
   border-radius: 8px;
   background: rgba(247, 244, 234, 0.54);
@@ -256,6 +260,12 @@ h2 {
   grid-template-columns: 1.1fr 1fr 1fr;
   gap: 10px;
   align-items: end;
+  min-width: 0;
+}
+
+.run-lab > *,
+.customizer > * {
+  min-width: 0;
 }
 
 .name-field {
@@ -287,12 +297,12 @@ h2 {
 .swatches,
 .marks {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
 }
 
 .marks {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .swatch,
@@ -1012,6 +1022,19 @@ h2 {
     line-height: 1.2;
     text-align: left;
     white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .custom-column,
+  .setup-column,
+  .option-group,
+  .option-group-body,
+  .customizer,
+  .run-lab,
+  .swatches,
+  .marks {
+    max-width: 100%;
+    min-width: 0;
   }
 
   .hud {

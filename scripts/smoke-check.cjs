@@ -141,6 +141,7 @@ const { chromium } = require("playwright");
     const panel = document.querySelector("#menu .panel").getBoundingClientRect();
     const runSummary = document.querySelector(".option-group-run summary");
     const runLabel = runSummary.querySelector("span").getBoundingClientRect();
+    const runSummaryText = runSummary.querySelector("strong").textContent.trim();
     const runValue = runSummary.querySelector("strong").getBoundingClientRect();
     return {
       top: panel.top,
@@ -149,6 +150,7 @@ const { chromium } = require("playwright");
       bottom: panel.bottom,
       width: panel.width,
       height: panel.height,
+      runSummaryText,
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
       docScrollWidth: document.documentElement.scrollWidth,
@@ -159,6 +161,32 @@ const { chromium } = require("playwright");
         panel.right <= window.innerWidth &&
         panel.bottom <= window.innerHeight,
     };
+  });
+  await slimPage.evaluate(() => {
+    document.querySelector(".option-group-style").open = true;
+  });
+  const slimStyleOpen = await slimPage.evaluate(() => {
+    const panel = document.querySelector("#menu .panel").getBoundingClientRect();
+    const styleGroup = document.querySelector(".option-group-style").getBoundingClientRect();
+    const customizer = document.querySelector(".customizer").getBoundingClientRect();
+    return {
+      panelBottom: panel.bottom,
+      styleRight: styleGroup.right,
+      customizerRight: customizer.right,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      docScrollWidth: document.documentElement.scrollWidth,
+      fits:
+        panel.top >= 0 &&
+        panel.left >= 0 &&
+        panel.right <= window.innerWidth &&
+        panel.bottom <= window.innerHeight &&
+        styleGroup.right <= panel.right &&
+        customizer.right <= panel.right,
+    };
+  });
+  await slimPage.evaluate(() => {
+    document.querySelector(".option-group-style").open = false;
   });
   await slimPage.click("#start");
   await slimPage.waitForTimeout(250);
@@ -254,6 +282,7 @@ const { chromium } = require("playwright");
         afterMenu,
         noPowerupsRun,
         slimMenu,
+        slimStyleOpen,
         slimHud,
         slimPause,
         slimSummary,
@@ -298,6 +327,10 @@ const { chromium } = require("playwright");
     !slimMenu.fits ||
     slimMenu.docScrollWidth > slimMenu.viewportWidth ||
     !slimMenu.summaryStacks ||
+    !slimMenu.runSummaryText.includes("Rush") ||
+    !slimMenu.runSummaryText.includes("City") ||
+    !slimStyleOpen.fits ||
+    slimStyleOpen.docScrollWidth > slimStyleOpen.viewportWidth ||
     !slimHud.fits ||
     slimHud.height > 135 ||
     slimHud.docScrollWidth > slimHud.viewportWidth ||
