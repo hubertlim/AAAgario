@@ -972,3 +972,190 @@ h2 {
     border-top: 0;
   }
 }
+
+@media (max-width: 380px) {
+  .menu,
+  .pause-menu,
+  .summary {
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  }
+
+  .panel,
+  .menu-panel,
+  .pause-menu .panel,
+  .summary .panel {
+    width: min(94vw, 352px);
+  }
+
+  .menu-columns,
+  .run-lab {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-panel {
+    max-height: calc(100svh - 16px);
+    overflow-y: auto;
+  }
+
+  .option-group > summary {
+    grid-template-columns: 1fr;
+    gap: 3px;
+    align-items: start;
+    min-height: 0;
+    padding: 8px 10px;
+  }
+
+  .option-group > summary strong {
+    width: 100%;
+    font-size: 0.86rem;
+    line-height: 1.2;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .hud {
+    top: max(8px, env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(82px, 0.74fr);
+    grid-template-areas:
+      "time time stop"
+      "mass rank boost"
+      "run run run";
+    gap: 5px;
+  }
+
+  .mass-card {
+    grid-area: mass;
+  }
+
+  .rank-card {
+    grid-area: rank;
+  }
+
+  .time-card {
+    grid-area: time;
+  }
+
+  .run-card {
+    grid-area: run;
+  }
+
+  .boost-card {
+    grid-area: boost;
+  }
+
+  .stop-button {
+    grid-area: stop;
+    grid-column: auto;
+    min-height: 40px;
+  }
+
+  .hud > div,
+  .stats > div {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    align-content: stretch;
+    column-gap: 6px;
+    min-height: 40px;
+    padding: 4px 7px;
+  }
+
+  .hud span,
+  .stats span {
+    font-size: 0.62rem;
+  }
+
+  .hud strong,
+  .stats strong {
+    font-size: 0.96rem;
+    text-align: right;
+  }
+
+  .time-card strong {
+    font-size: 1.22rem;
+  }
+
+  .run-card strong {
+    font-size: 0.9rem;
+  }
+
+  .boost-card strong {
+    font-size: 0.82rem;
+  }
+
+  .pause-menu,
+  .summary {
+    align-content: end;
+  }
+
+  .summary .panel {
+    padding: 10px;
+  }
+
+  .summary .eyebrow {
+    margin-bottom: 3px;
+  }
+
+  #result-copy {
+    margin: 8px 0 0;
+    font-size: 0.82rem;
+    line-height: 1.28;
+  }
+
+  .summary .stats {
+    gap: 6px;
+    margin-top: 9px;
+  }
+
+  .summary .stats > div {
+    min-height: 46px;
+  }
+
+  .summary .stats strong {
+    font-size: 1.06rem;
+  }
+
+  .summary #again,
+  .summary #summary-menu {
+    margin-top: 8px;
+    min-height: 42px;
+  }
+
+  .summary #again {
+    margin-top: 10px;
+  }
+
+  .summary h2 {
+    font-size: 1.85rem;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 380px) and (min-height: 600px) {
+  .summary {
+    align-content: center;
+  }
+}
+
+@media (max-width: 340px) {
+  .summary .panel {
+    padding: 9px;
+  }
+
+  #result-copy {
+    font-size: 0.78rem;
+  }
+
+  .summary .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .summary #again,
+  .summary #summary-menu {
+    min-height: 40px;
+    font-size: 0.9rem;
+  }
+}

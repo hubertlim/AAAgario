@@ -139,6 +139,9 @@ const { chromium } = require("playwright");
   await slimPage.goto("http://host.docker.internal:8080", { waitUntil: "networkidle" });
   const slimMenu = await slimPage.evaluate(() => {
     const panel = document.querySelector("#menu .panel").getBoundingClientRect();
+    const runSummary = document.querySelector(".option-group-run summary");
+    const runLabel = runSummary.querySelector("span").getBoundingClientRect();
+    const runValue = runSummary.querySelector("strong").getBoundingClientRect();
     return {
       top: panel.top,
       left: panel.left,
@@ -148,6 +151,8 @@ const { chromium } = require("playwright");
       height: panel.height,
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
+      docScrollWidth: document.documentElement.scrollWidth,
+      summaryStacks: runValue.top > runLabel.top,
       fits:
         panel.top >= 0 &&
         panel.left >= 0 &&
@@ -157,6 +162,22 @@ const { chromium } = require("playwright");
   });
   await slimPage.click("#start");
   await slimPage.waitForTimeout(250);
+  const slimHud = await slimPage.evaluate(() => {
+    const hud = document.querySelector("#hud").getBoundingClientRect();
+    const time = document.querySelector(".time-card").getBoundingClientRect();
+    const stop = document.querySelector("#stop").getBoundingClientRect();
+    return {
+      top: hud.top,
+      bottom: hud.bottom,
+      height: hud.height,
+      width: hud.width,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      docScrollWidth: document.documentElement.scrollWidth,
+      timeWiderThanStop: time.width > stop.width,
+      fits: hud.left >= 0 && hud.right <= window.innerWidth && hud.bottom <= window.innerHeight,
+    };
+  });
   await slimPage.evaluate(() => {
     document.querySelector("#stop").click();
   });
@@ -174,6 +195,46 @@ const { chromium } = require("playwright");
       hudBottom: hud.bottom,
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
+      docScrollWidth: document.documentElement.scrollWidth,
+      fits:
+        panel.top >= 0 &&
+        panel.left >= 0 &&
+        panel.right <= window.innerWidth &&
+        panel.bottom <= window.innerHeight,
+    };
+  });
+
+  await slimPage.evaluate(() => {
+    document.querySelector("#pause-menu").classList.add("is-hidden");
+    document.querySelector("#hud").classList.add("is-hidden");
+    document.querySelector("#summary").classList.remove("is-hidden");
+    document.querySelector("#result-title").textContent = "Clean sweep";
+    document.querySelector("#result-copy").textContent =
+      "Rush on City with Clean. The best runs chain tiny pickups into bigger objects before hunting rivals.";
+    document.querySelector("#final-mass").textContent = "1284";
+    document.querySelector("#final-chain").textContent = "37";
+  });
+  const slimSummary = await slimPage.evaluate(() => {
+    const panel = document.querySelector("#summary .panel").getBoundingClientRect();
+    const stats = document.querySelector(".stats").getBoundingClientRect();
+    const copy = document.querySelector("#result-copy").getBoundingClientRect();
+    const buttons = [...document.querySelectorAll("#summary button")].map((button) =>
+      button.getBoundingClientRect(),
+    );
+    const buttonArea = buttons.reduce((sum, button) => sum + button.width * button.height, 0);
+    return {
+      top: panel.top,
+      left: panel.left,
+      right: panel.right,
+      bottom: panel.bottom,
+      width: panel.width,
+      height: panel.height,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      docScrollWidth: document.documentElement.scrollWidth,
+      statsUse: (stats.width * stats.height) / (panel.width * panel.height),
+      buttonUse: buttonArea / (panel.width * panel.height),
+      copyShorterThanStatsAndButtons: copy.height < stats.height + buttons[0].height,
       fits:
         panel.top >= 0 &&
         panel.left >= 0 &&
@@ -185,7 +246,19 @@ const { chromium } = require("playwright");
 
   console.log(
     JSON.stringify(
-      { menuLayout, result, afterStop, afterResume, afterMenu, noPowerupsRun, slimMenu, slimPause, errors },
+      {
+        menuLayout,
+        result,
+        afterStop,
+        afterResume,
+        afterMenu,
+        noPowerupsRun,
+        slimMenu,
+        slimHud,
+        slimPause,
+        slimSummary,
+        errors,
+      },
       null,
       2,
     ),
@@ -223,7 +296,20 @@ const { chromium } = require("playwright");
     afterMenu.activePowerups !== "on" ||
     !noPowerupsRun.boostHidden ||
     !slimMenu.fits ||
+    slimMenu.docScrollWidth > slimMenu.viewportWidth ||
+    !slimMenu.summaryStacks ||
+    !slimHud.fits ||
+    slimHud.height > 135 ||
+    slimHud.docScrollWidth > slimHud.viewportWidth ||
+    !slimHud.timeWiderThanStop ||
     !slimPause.fits ||
+    slimPause.docScrollWidth > slimPause.viewportWidth ||
+    !slimSummary.fits ||
+    slimSummary.height > 275 ||
+    slimSummary.docScrollWidth > slimSummary.viewportWidth ||
+    slimSummary.statsUse < 0.12 ||
+    slimSummary.buttonUse < 0.28 ||
+    !slimSummary.copyShorterThanStatsAndButtons ||
     result.canvasWidth === 0 ||
     result.canvasHeight === 0 ||
     sampledPaper
